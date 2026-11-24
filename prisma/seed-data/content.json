@@ -1,0 +1,234 @@
+{
+  "kuliner": [
+    {
+      "id": "mendoan",
+      "name": "Jajanan & Mendoan Purbalingga",
+      "category": "cemilan",
+      "district": "Purbalingga",
+      "priceRange": "Rp 5.000 - Rp 15.000",
+      "desc": "Tempe kedelai berbalut adonan tepung gurih setengah matang dengan cocolan sambal kecap cabai rawit pedas nikmat.",
+      "isHalal": true
+    },
+    {
+      "id": "soto-kriyik",
+      "name": "Soto Kriyik Khas Bojongsari",
+      "category": "makanan-berat",
+      "district": "Bojongsari",
+      "priceRange": "Rp 15.000 - Rp 25.000",
+      "desc": "Soto berkuah santan gurih kuning khas Banyumasan dilengkapi kerupuk kriyik renyah dan suwiran ayam kampung.",
+      "isHalal": true
+    },
+    {
+      "id": "sate-blater",
+      "name": "Sate Ayam Blater Kalimanah",
+      "category": "makanan-berat",
+      "district": "Kalimanah",
+      "priceRange": "Rp 25.000 - Rp 40.000",
+      "desc": "Daging ayam direndam bumbu rempah sebelum dibakar, menghasilkan rasa bumbu yang meresap sempurna hingga ke serat terdalam.",
+      "isHalal": true
+    },
+    {
+      "id": "gulai-melung",
+      "name": "Gulai Melung Bu Hadi Rembang",
+      "category": "makanan-berat",
+      "district": "Rembang",
+      "priceRange": "Rp 30.000 - Rp 60.000",
+      "desc": "Olahan daging kambing empuk yang dimasak secara tradisional dengan tungku kayu bakar menghasilkan aroma asap yang khas.",
+      "isHalal": true
+    },
+    {
+      "id": "buntil",
+      "name": "Buntil Kutasari",
+      "category": "makanan-berat",
+      "district": "Kutasari",
+      "priceRange": "Rp 8.000 - Rp 15.000",
+      "desc": "Daun talas atau singkong berisi parutan kelapa berbumbu teri dan petai cina, dimasak dalam kuah santan pedas gurih.",
+      "isHalal": true
+    },
+    {
+      "id": "nopia-mino",
+      "name": "Nopia & Mino Gula Kelapa",
+      "category": "oleh-oleh",
+      "district": "Kemangkon",
+      "priceRange": "Rp 15.000 - Rp 35.000",
+      "desc": "Kue kering khas berkulit renyah dari adonan terigu dengan isian gula merah kelapa murni yang meleleh manis di mulut.",
+      "isHalal": true
+    },
+    {
+      "id": "es-duren",
+      "name": "Es Duren Kombinasi Purbalingga",
+      "category": "minuman",
+      "district": "Purbalingga",
+      "priceRange": "Rp 18.000 - Rp 30.000",
+      "desc": "Daging buah durian asli dipadu es serut, susu kental manis, dan santan segar pelepas dahaga saat siang terik.",
+      "isHalal": true
+    },
+    {
+      "id": "kacang-umpet",
+      "name": "Kacang Umpet & Mirasa",
+      "category": "oleh-oleh",
+      "district": "Kalimanah",
+      "priceRange": "Rp 12.000 - Rp 28.000",
+      "desc": "Camilan kacang tanah terbalut kulit pangsit renyah berselimut karamel gula jawa manis gurih tahan lama.",
+      "isHalal": true
+    }
+  ],
+  "events": [
+    {
+      "id": "1",
+      "title": "Festival Gunung Slamet (FGS) IX",
+      "date": "12 - 14 Juli 2026",
+      "location": "Desa Wisata Serang, Karangreja",
+      "category": "Tradisi & Budaya",
+      "desc": "Perayaan tradisi ruwat bumi lereng Slamet, festival perang tomat, pementasan seni tradisional, dan bazar agrowisata akbar."
+    },
+    {
+      "id": "2",
+      "title": "Grebeg Onje & Haul Raden Adipati Onje",
+      "date": "25 Agustus 2026",
+      "location": "Desa Onje, Mrebet",
+      "category": "Sejarah & Religi",
+      "desc": "Prosesi kirab budaya sakral napak tilas cikal bakal Kadipaten Purbalingga dengan pengambilan air berkah tujuh sumur kuno."
+    },
+    {
+      "id": "3",
+      "title": "Festival Sungai Klawing & Pameran Akik",
+      "date": "10 - 12 September 2026",
+      "location": "Bantaran Sungai Klawing, Bancar",
+      "category": "Ekonomi Kreatif",
+      "desc": "Eksibisi batu akik bergambar khas Klawing (Nogosui), lomba dayung rakit bambu, dan pameran kuliner khas tepian sungai."
+    },
+    {
+      "id": "4",
+      "title": "Pentas Akbar Ebeg / Kuda Lumping Perwira",
+      "date": "28 Oktober 2026",
+      "location": "Alun-Alun Purbalingga",
+      "category": "Seni Pertunjukan",
+      "desc": "Parade 1.000 penari Ebeg Banyumasan dari 18 kecamatan dalam rangka memperingati Hari Sumpah Pemuda."
+    }
+  ],
+  "umkm": [
+    {
+      "id": "knalpot",
+      "name": "Industri Knalpot Purbalingga",
+      "district": "Purbalingga (Sayangan)",
+      "tag": "Manufaktur Kreatif",
+      "desc": "Sentra kerajinan knalpot presisi manual yang legendaris sejak tahun 1970-an. Memasok kebutuhan pasar otomotif nasional hingga ekspor internasional.",
+      "features": [
+        "Presisi Tinggi",
+        "Bahan Stainless Steel",
+        "Pusat Sayangan"
+      ]
+    },
+    {
+      "id": "bulu-mata",
+      "name": "Kerajinan Rambut Palsu & Bulu Mata",
+      "district": "Kalimanah & sekitarnya",
+      "tag": "Ekspor Dunia",
+      "desc": "Purbalingga merupakan salah satu produsen bulu mata palsu (eyelashes) dan rambut palsu (wigs) terbesar di dunia yang digunakan selebriti mancanegara.",
+      "features": [
+        "Kualitas Halus",
+        "Handmade Pengrajin Lokal",
+        "Pasar Global"
+      ]
+    },
+    {
+      "id": "batik-lawa",
+      "name": "Batik Tulis Motif Lawa & Goa",
+      "district": "Bobotsari & Karangmoncol",
+      "tag": "Wastra Nusantara",
+      "desc": "Kain batik khas Purbalingga dengan motif khas kelelawar (lawa), motif wayang Bawor, dan flora lereng Gunung Slamet yang anggun.",
+      "features": [
+        "Pewarna Alami",
+        "Batik Tulis Tradisional",
+        "Motif Khas Perwira"
+      ]
+    },
+    {
+      "id": "sapu-glagah",
+      "name": "Kerajinan Sapu Glagah Rembang",
+      "district": "Rembang & Pengadegan",
+      "tag": "Kerajinan Rumah Tangga",
+      "desc": "Sapu alami dari bunga rumput glagah pegunungan yang awet, ramah lingkungan, dan diekspor ke berbagai negara seperti Jepang dan Taiwan.",
+      "features": [
+        "Alami & Awet",
+        "Anyaman Kokoh",
+        "Produk Ekspor Unggulan"
+      ]
+    },
+    {
+      "id": "gula-kelapa",
+      "name": "Gula Kelapa Kristal (Gula Semut) Organik",
+      "district": "Kejobong & Bukateja",
+      "tag": "Pangan Organik",
+      "desc": "Hasil olahan nira kelapa murni penderes Purbalingga yang telah berstandar sertifikasi organik internasional (USDA & EU Organic).",
+      "features": [
+        "Indeks Glikemik Rendah",
+        "100% Nira Murni",
+        "Sertifikasi Organik"
+      ]
+    },
+    {
+      "id": "batu-klawing",
+      "name": "Kerajinan Batu Akik Klawing (Nogosui)",
+      "district": "Boba / Purbalingga",
+      "tag": "Batu Mulia",
+      "desc": "Batu jasper alami aliran Sungai Klawing dengan corak darah khas 'Nogosui' dan panca warna yang tersohor di kalangan kolektor.",
+      "features": [
+        "Corak Alami Unik",
+        "Asli Sungai Klawing",
+        "Cinderamata Eksklusif"
+      ]
+    }
+  ],
+  "berita": [
+    {
+      "id": "1",
+      "title": "Malam Puncak Keberangkatan Kafilah Purbalingga Menuju MTQ Tingkat Jawa Tengah",
+      "category": "Warta Daerah",
+      "date": "20 November 2026",
+      "readTime": "3 menit",
+      "desc": "Pelepasan resmi delegasi berprestasi Kabupaten Purbalingga dengan dukungan penuh jajaran pemerintah daerah dan doa bersama masyarakat."
+    },
+    {
+      "id": "2",
+      "title": "Pelatihan Pengelolaan Wisata Ramah Lansia dan Aksesibilitas Difabel bagi Pengelola Objek Wisata",
+      "category": "Pariwisata",
+      "date": "18 November 2026",
+      "readTime": "4 menit",
+      "desc": "Disporapar Purbalingga mengadakan bimbingan teknis bagi 50 pengelola desa wisata untuk meningkatkan standar pelayanan inklusif."
+    },
+    {
+      "id": "3",
+      "title": "Festival Kuliner Tradisional: Menghidupkan Kembali Resep Mendoan dan Soto Kriyik Legendaris",
+      "category": "Kuliner & Budaya",
+      "date": "15 November 2026",
+      "readTime": "5 menit",
+      "desc": "Ribuan pengunjung memadati Alun-alun Purbalingga mencicipi ragam hidangan khas Banyumasan dari penderes kelapa hingga chef lokal."
+    },
+    {
+      "id": "4",
+      "title": "Pemerintah Dukung Ekspor Gula Kelapa Organik Purbalingga ke Pasar Uni Eropa",
+      "category": "Ekonomi & UMKM",
+      "date": "12 November 2026",
+      "readTime": "4 menit",
+      "desc": "Pemberdayaan penderes kelapa lokal dengan standar sertifikasi organik internasional untuk memperluas pasar luar negeri."
+    },
+    {
+      "id": "5",
+      "title": "Revitalisasi Sentra Industri Knalpot Sayangan: Menuju Era Komponen Otomotif Berstandar SNI",
+      "category": "Ekonomi & UMKM",
+      "date": "08 November 2026",
+      "readTime": "3 menit",
+      "desc": "Dukungan fasilitas uji desibel dan peralatan las presisi modern bagi ratusan pengrajin knalpot Sayangan Purbalingga."
+    },
+    {
+      "id": "6",
+      "title": "Promosi Pesona Gunung Slamet dan Gua Lawa Melalui Platform Digital Purbalingga Memikat",
+      "category": "Pariwisata",
+      "date": "02 November 2026",
+      "readTime": "3 menit",
+      "desc": "Peluncuran portal digital pariwisata terpadu memudahkan wisatawan mengakses informasi tiket, fasilitas, dan rute perjalanan."
+    }
+  ]
+}

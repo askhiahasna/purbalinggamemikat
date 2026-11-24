@@ -1,0 +1,347 @@
+// Prisma schema for Purbalingga Memikat
+// Configured for PostgreSQL (Supabase compatible)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------
+// ENUMS
+// ----------------------------------------------------
+
+enum Role {
+  SUPER_ADMIN          // Administrator Dinas / Dinkominfo
+  EDITOR               // Editor konten & moderasi (tanpa pengaturan/pengguna)
+  DESTINATION_MANAGER  // Pengelola Wisata Khusus
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CategoryType {
+  DESTINATION
+  CULINARY
+  EVENT
+  UMKM
+  ARTICLE
+}
+
+enum SubmissionType {
+  COMPLAINT             // Aspirasi / Pengaduan
+  OPERATOR_REGISTRATION // Pendaftaran Pengelola Wisata / UMKM
+  SURVEY                // Survei Kepuasan Turis
+  CONTACT               // Kontak Pertanyaan Umum
+}
+
+enum SubmissionStatus {
+  PENDING
+  IN_REVIEW
+  RESOLVED
+}
+
+// ----------------------------------------------------
+// USER & AUTHENTICATION
+// ----------------------------------------------------
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(EDITOR)
+  isActive     Boolean       @default(true)
+  phone        String?
+  avatarUrl    String?
+  lastLoginAt  DateTime?
+  
+  // Relations
+  destinations Destination[] @relation("ManagedDestinations")
+  articles     Article[]
+  handledSubmissions PublicSubmission[] @relation("HandledSubmissions")
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([role])
+}
+
+// ----------------------------------------------------
+// TAXONOMY & CATEGORIES
+// ----------------------------------------------------
+
+model Category {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  type        CategoryType  @default(DESTINATION)
+  icon        String?       // Lucide icon name or SVG path
+  sortOrder   Int           @default(0)
+
+  // Relations
+  destinations Destination[]
+  culinaries   Culinary[]
+  events       Event[]
+  businesses   Business[]
+  articles     Article[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([type])
+}
+
+// ----------------------------------------------------
+// DESTINATIONS
+// ----------------------------------------------------
+
+model Destination {
+  id                  String               @id @default(cuid())
+  name                String
+  slug                String               @unique
+  summary             String               // Short summary for cards
+  description         String               // Rich text / markdown
+  categoryId          String
+  category            Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  
+  district            String               // Kecamatan di Purbalingga
+  address             String
+  latitude            Float?
+  longitude           Float?
+  
+  ticketPriceWeekday  Int?                 @default(0)
+  ticketPriceWeekend  Int?                 @default(0)
+  openingHours        String?              // e.g. "08:00 - 17:00 WIB"
+  accessibilityNotes  String?
+  bestVisitingTime    String?
+  contactPhone        String?
+  contactManagerName  String?              // Nama pengelola (teks bebas)
+  coverGradient       String?              // Tailwind gradient placeholder sebelum ada foto
+  accentColor         String?
+  websiteUrl          String?
+  
+  isFeatured          Boolean              @default(false)
+  status              PublishStatus        @default(DRAFT)
+  viewCount           Int                  @default(0)
+  
+  // Assigned Manager (Optional)
+  managerId           String?
+  manager             User?                @relation("ManagedDestinations", fields: [managerId], references: [id], onDelete: SetNull)
+
+  // Relations
+  images              DestinationImage[]
+  facilities          DestinationFacility[]
+  reviews             Review[]
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([district])
+  @@index([status])
+  @@index([isFeatured])
+}
+
+model DestinationImage {
+  id            String      @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  url           String
+  caption       String?
+  isCover       Boolean     @default(false)
+  sortOrder     Int         @default(0)
+
+  createdAt     DateTime    @default(now())
+
+  @@index([destinationId])
+}
+
+model Facility {
+  id           String                @id @default(cuid())
+  name         String                @unique
+  icon         String?               // Lucide icon identifier
+  destinations DestinationFacility[]
+}
+
+model DestinationFacility {
+  destinationId String
+  facilityId    String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  facility      Facility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@id([destinationId, facilityId])
+}
+
+// ----------------------------------------------------
+// VISITOR REVIEWS
+// ----------------------------------------------------
+
+model Review {
+  id            String      @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  
+  authorName    String
+  authorEmail   String
+  rating        Int         // 1 to 5
+  comment       String
+  isApproved    Boolean     @default(false)
+  approvedAt    DateTime?
+  
+  createdAt     DateTime    @default(now())
+
+  @@index([destinationId])
+  @@index([isApproved])
+}
+
+// ----------------------------------------------------
+// CULINARY & SOUVENIRS
+// ----------------------------------------------------
+
+model Culinary {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String
+  priceRange  String?       // e.g. "Rp 10.000 - Rp 35.000"
+  district    String
+  address     String
+  imageUrl    String?
+  isHalal     Boolean       @default(true)
+  status      PublishStatus @default(PUBLISHED)
+  
+  categoryId  String?
+  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([district])
+}
+
+// ----------------------------------------------------
+// CULTURE & EVENTS
+// ----------------------------------------------------
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  description String
+  location    String
+  district    String?
+  startDate   DateTime
+  endDate     DateTime?
+  organizer   String?
+  bannerUrl   String?
+  status      PublishStatus @default(PUBLISHED)
+
+  categoryId  String?
+  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([startDate])
+  @@index([status])
+}
+
+// ----------------------------------------------------
+// UMKM & LOCAL BUSINESS
+// ----------------------------------------------------
+
+model Business {
+  id              String        @id @default(cuid())
+  name            String
+  slug            String        @unique
+  description     String
+  ownerName       String?
+  whatsappNumber  String?
+  district        String
+  address         String
+  logoUrl         String?
+  features        String[]      @default([])
+  status          PublishStatus @default(PUBLISHED)
+
+  categoryId      String?
+  category        Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([district])
+}
+
+// ----------------------------------------------------
+// NEWS & ARTICLES
+// ----------------------------------------------------
+
+model Article {
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  excerpt       String
+  content       String        // Markdown or HTML
+  coverImageUrl String?
+  status        PublishStatus @default(DRAFT)
+  publishedAt   DateTime?
+  
+  authorId      String
+  author        User          @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  categoryId    String?
+  category      Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+  @@index([publishedAt])
+}
+
+// ----------------------------------------------------
+// PUBLIC SUBMISSIONS (Pengaduan, Registrasi, Survei)
+// ----------------------------------------------------
+
+model PublicSubmission {
+  id          String           @id @default(cuid())
+  type        SubmissionType   @default(CONTACT)
+  senderName  String
+  senderEmail String
+  senderPhone String?
+  subject     String
+  message     String
+  rating      Int?             // For satisfaction surveys
+  attachment  String?          // File URL if applicable
+  status      SubmissionStatus @default(PENDING)
+  notes       String?          // Admin internal notes
+  payload     Json?            // Data terstruktur (mis. pendaftaran usaha/wisata)
+  ipHash      String?          // Hash IP (tidak dapat dibalik) untuk pembatasan spam
+  handledById String?
+  handledBy   User?            @relation("HandledSubmissions", fields: [handledById], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ----------------------------------------------------
+// SITE SETTINGS (pengganti cms-data.json)
+// ----------------------------------------------------
+
+model SiteSetting {
+  key       String   @id          // contoh: "site"
+  value     Json
+  updatedAt DateTime @updatedAt
+}

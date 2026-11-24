@@ -1,0 +1,5 @@
+-- Role: OFFICER_EDITOR -> EDITOR (data user tetap)
+ALTER TYPE "Role" RENAME VALUE 'OFFICER_EDITOR' TO 'EDITOR';
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "lastLoginAt" TIMESTAMP(3);
