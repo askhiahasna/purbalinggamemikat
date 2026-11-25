@@ -210,7 +210,7 @@ export function InteractivePillars() {
 
                 <Link
                   href={current.href}
-                  className="w-full py-3 rounded-xl bg-secondary-500 hover:bg-secondary-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                  className="w-full py-3 rounded-xl bg-secondary-500 hover:bg-secondary-400 text-primary-950 text-xs font-bold flex items-center justify-center gap-2 shadow-md cursor-pointer"
                 >
                   <span>Buka Halaman {current.title}</span>
                   <ArrowRight className="w-4 h-4" />

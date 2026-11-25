@@ -7,6 +7,11 @@ import Link from "next/link";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbLd, itemListLd } from "@/lib/structured-data";
 import { pageMetadata } from "@/lib/seo";
+import { SectionHero } from "@/components/public/section/section-hero";
+import { RecommendationSection } from "@/components/public/section/recommendations";
+import { pickHero, tileIcon } from "@/components/public/section/helpers";
+import { getSiteSettings } from "@/server/queries/settings";
+import { slugify } from "@/lib/utils";
 
 // Konten berasal dari PostgreSQL (CMS) — dirender per-request.
 export const dynamic = "force-dynamic";
@@ -18,11 +23,15 @@ export const metadata: Metadata = pageMetadata({
   path: "/berita",
 });
 
-export default async function BeritaPage() {
-  const articles = await getPublishedArticles();
+export default async function BeritaPage({ searchParams }: { searchParams: Promise<{ kategori?: string }> }) {
+  const { kategori } = await searchParams;
+  const [allArticles, settings] = await Promise.all([getPublishedArticles(), getSiteSettings()]);
+  const articles = kategori ? allArticles.filter((a) => slugify(a.category) === kategori) : allArticles;
+  const cats = [...new Set(allArticles.map((a) => a.category))].slice(0, 4);
+  const recommended = [...allArticles.filter((a) => a.imageUrl), ...allArticles.filter((a) => !a.imageUrl)].slice(0, 4);
 
   return (
-    <div className="space-y-16 pb-20">
+    <div>
       <JsonLd
         data={[
           breadcrumbLd([
@@ -31,31 +40,25 @@ export default async function BeritaPage() {
           ]),
           itemListLd(
             "Berita & Artikel Purbalingga",
-            articles.map((a) => ({ name: a.title, path: `/berita/${a.id}`, image: a.imageUrl, description: a.desc }))
+            allArticles.map((a) => ({ name: a.title, path: `/berita/${a.id}`, image: a.imageUrl, description: a.desc }))
           ),
         ]}
       />
-      {/* 1. HERO HEADER */}
-      <section className="relative overflow-hidden bg-primary-950 text-white pt-20 pb-28 sm:pt-28 sm:pb-36">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-teal-950/80 opacity-95" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(194,136,53,0.2),transparent_60%)]" />
+      <SectionHero
+        image={pickHero(settings.heroPageBerita, allArticles.find((a) => a.imageUrl)?.imageUrl, settings.heroBgUrl)}
+        title={["Berita", "Purbalingga"]}
+        subtitle="Warta pembangunan daerah, liputan budaya, dan kabar pariwisata terkini"
+        tiles={cats.map((c) => ({ label: c, href: `/berita?kategori=${slugify(c)}#katalog`, Icon: tileIcon(c, Newspaper) }))}
+      />
+      <RecommendationSection
+        id="rekomendasi"
+        title="Kabar Terbaru Purbalingga"
+        items={recommended.map((a) => ({ id: a.id, name: a.title, image: a.imageUrl, href: `/berita/${a.id}`, gradient: "from-primary-700 to-primary-900" }))}
+      />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4" data-reveal="fade">
-          <Badge variant="secondary" className="px-3.5 py-1 text-xs uppercase tracking-widest font-bold">
-            ✦ Kabar & Warta Resmi
-          </Badge>
-          <h1 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-3xl mx-auto leading-tight">
-            Berita & Artikel <span className="text-secondary-400">Purbalingga</span>
-          </h1>
-          <p className="font-body text-sm sm:text-base text-stone-200 max-w-2xl mx-auto leading-relaxed">
-            Kumpulan warta pembangunan daerah, liputan acara budaya, informasi pariwisata,
-            dan kabar prestasi masyarakat Kabupaten Purbalingga.
-          </p>
-        </div>
-      </section>
 
       {/* 2. ARTICLES GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <section id="katalog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 py-14 sm:py-20 scroll-mt-24">
         <div className="border-b border-stone-200 pb-4 flex items-center justify-between">
           <h2 className="font-editorial text-3xl font-bold text-primary-950">
             Arsip Warta Terkini
@@ -69,6 +72,7 @@ export default async function BeritaPage() {
           {articles.map((art) => (
             <div
               key={art.id}
+              id={art.id}
               className="relative bg-white rounded-3xl border border-stone-200 shadow-sm hover:shadow-xl hover:border-primary-500 transition-all flex flex-col justify-between overflow-hidden" data-reveal
             >
               <div>

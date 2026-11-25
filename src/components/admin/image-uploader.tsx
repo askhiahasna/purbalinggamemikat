@@ -6,7 +6,7 @@ import { createUploadUrlAction } from "@/server/actions/media-actions";
 import { prepareImage, putToSignedUrl } from "@/lib/image-resize";
 import { ACCEPTED_IMAGE_TYPES } from "@/lib/media";
 
-export type UploadScope = "destinasi" | "berita" | "kuliner" | "umkm" | "event" | "pengaturan";
+export type UploadScope = "destinasi" | "berita" | "kuliner" | "umkm" | "event" | "pengaturan" | "akomodasi";
 
 /** Alur: resize -> minta URL upload ke server -> PUT langsung ke Supabase -> kembalikan URL publik. */
 export async function uploadImage(file: File, scope: UploadScope, entityId?: string | null): Promise<string> {

@@ -1,4 +1,7 @@
 import { absoluteUrl, SITE_NAME, siteUrl, truncate } from "@/lib/seo";
+import { priceRangeLabel } from "@/lib/contact";
+import type { PublicAccommodation } from "@/server/queries/accommodation";
+import type { PublicCulinary } from "@/server/queries/content";
 import type { DestinationDetail } from "@/types/destination";
 
 // Pembangun JSON-LD schema.org. Hanya memakai data yang benar-benar ada di database
@@ -146,5 +149,52 @@ export function articleLd(a: {
     author: { "@type": "Organization", name: `Redaksi ${SITE_NAME}` },
     publisher: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
     inLanguage: "id-ID",
+  };
+}
+
+export function accommodationLd(a: PublicAccommodation) {
+  const range = priceRangeLabel(a.priceFrom, a.priceTo);
+  return {
+    "@context": ctx,
+    "@type": a.type === "HOTEL" ? "Hotel" : a.type === "CAMPING" ? "Campground" : "LodgingBusiness",
+    name: a.name,
+    description: truncate(a.description, 300),
+    url: absoluteUrl("/akomodasi"),
+    ...(a.imageUrl ? { image: [a.imageUrl] } : {}),
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: a.address,
+      addressLocality: a.district,
+      addressRegion: "Jawa Tengah",
+      addressCountry: "ID",
+    },
+    ...(a.latitude !== null && a.longitude !== null ? { geo: { "@type": "GeoCoordinates", latitude: a.latitude, longitude: a.longitude } } : {}),
+    ...(a.phone ? { telephone: a.phone } : {}),
+    ...(range ? { priceRange: range } : {}),
+    ...(a.facilities.length
+      ? { amenityFeature: a.facilities.map((f) => ({ "@type": "LocationFeatureSpecification", name: f, value: true })) }
+      : {}),
+  };
+}
+
+export function culinaryLd(c: PublicCulinary) {
+  const hasGeo = typeof c.latitude === "number" && typeof c.longitude === "number" && !(c.latitude === 0 && c.longitude === 0);
+  return {
+    "@context": ctx,
+    "@type": "FoodEstablishment",
+    name: c.name,
+    description: truncate(c.desc, 300),
+    url: absoluteUrl(`/kuliner/${c.id}`),
+    servesCuisine: c.categoryLabel,
+    ...(c.imageUrl ? { image: [c.imageUrl] } : {}),
+    ...(c.priceRange && c.priceRange !== "-" ? { priceRange: c.priceRange } : {}),
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: c.address,
+      addressLocality: c.district,
+      addressRegion: "Jawa Tengah",
+      addressCountry: "ID",
+    },
+    ...(hasGeo ? { geo: { "@type": "GeoCoordinates", latitude: c.latitude, longitude: c.longitude } } : {}),
   };
 }

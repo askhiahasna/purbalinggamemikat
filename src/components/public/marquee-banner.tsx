@@ -13,7 +13,7 @@ export async function MarqueeBanner() {
       ];
 
   return (
-    <div className="w-full bg-secondary-500 text-white overflow-hidden py-3 relative z-20 border-y border-secondary-600/30">
+    <div className="w-full bg-secondary-500 text-primary-950 overflow-hidden py-3 relative z-20 border-y border-secondary-600/30">
       <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-xs sm:text-sm font-heading font-bold uppercase tracking-widest">
         {[...items, ...items, ...items, ...items].map((text, idx) => (
           <span key={idx} className="flex items-center gap-6">

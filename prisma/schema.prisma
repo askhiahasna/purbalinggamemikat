@@ -35,6 +35,15 @@ enum CategoryType {
   ARTICLE
 }
 
+enum AccommodationType {
+  HOTEL
+  HOMESTAY
+  VILLA
+  GUESTHOUSE
+  CAMPING
+  OTHER
+}
+
 enum SubmissionType {
   COMPLAINT             // Aspirasi / Pengaduan
   OPERATOR_REGISTRATION // Pendaftaran Pengelola Wisata / UMKM
@@ -214,6 +223,8 @@ model Culinary {
   priceRange  String?       // e.g. "Rp 10.000 - Rp 35.000"
   district    String
   address     String
+  latitude    Float?
+  longitude   Float?
   imageUrl    String?
   isHalal     Boolean       @default(true)
   status      PublishStatus @default(PUBLISHED)
@@ -278,6 +289,37 @@ model Business {
   updatedAt       DateTime      @updatedAt
 
   @@index([district])
+}
+
+// ----------------------------------------------------
+// ACCOMMODATION (direktori penginapan)
+// ----------------------------------------------------
+
+model Accommodation {
+  id             String            @id @default(cuid())
+  name           String
+  slug           String            @unique
+  type           AccommodationType @default(HOMESTAY)
+  description    String
+  district       String
+  address        String
+  latitude       Float?
+  longitude      Float?
+  priceFrom      Int?              // tarif per malam, Rupiah
+  priceTo        Int?
+  phone          String?
+  whatsappNumber String?
+  websiteUrl     String?
+  facilities     String[]          @default([])
+  imageUrl       String?
+  status         PublishStatus     @default(PUBLISHED)
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([district])
+  @@index([type])
+  @@index([status])
 }
 
 // ----------------------------------------------------

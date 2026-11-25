@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/data/cms-store";
+import { DEFAULT_SETTINGS, DEPRECATED_SETTING_KEYS, type SiteSettings } from "@/lib/data/cms-store";
 
 const SETTINGS_KEY = "site";
 
@@ -18,6 +18,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 export async function saveSiteSettings(patch: Partial<SiteSettings>): Promise<SiteSettings> {
   const current = await getSiteSettings();
   const updated: SiteSettings = { ...current, ...patch };
+  for (const k of DEPRECATED_SETTING_KEYS) delete (updated as unknown as Record<string, unknown>)[k];
   await prisma.siteSetting.upsert({
     where: { key: SETTINGS_KEY },
     update: { value: updated as object },

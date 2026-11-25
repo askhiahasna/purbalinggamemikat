@@ -39,10 +39,21 @@ export async function getPublishedCulinary(take?: number) {
     category: (r.category?.slug ?? "").replace(/^kuliner-/, ""),
     district: r.district,
     priceRange: r.priceRange ?? "-",
+    categoryLabel: r.category?.name ?? "Kuliner",
+    address: r.address,
+    latitude: r.latitude,
+    longitude: r.longitude,
     desc: r.description,
     isHalal: r.isHalal,
     imageUrl: r.imageUrl,
   }));
+}
+
+export type PublicCulinary = Awaited<ReturnType<typeof getPublishedCulinary>>[number];
+
+export async function getPublishedCulinaryBySlug(slug: string): Promise<PublicCulinary | null> {
+  const all = await getPublishedCulinary();
+  return all.find((c) => c.id === slug) ?? null;
 }
 
 export async function getPublishedEvents(take?: number) {
@@ -106,7 +117,7 @@ export async function getCategoriesByType(type: "CULINARY" | "EVENT" | "UMKM" | 
   return prisma.category.findMany({
     where: { type },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: { id: true, name: true },
+    select: { id: true, name: true, slug: true },
   });
 }
 
@@ -121,6 +132,8 @@ export async function getCulinaryForAdmin() {
     priceRange: r.priceRange ?? "",
     isHalal: r.isHalal,
     imageUrl: r.imageUrl ?? "",
+    latitude: r.latitude === null ? "" : String(r.latitude),
+    longitude: r.longitude === null ? "" : String(r.longitude),
     status: r.status,
     categoryId: r.categoryId ?? "",
     categoryName: r.category?.name ?? "-",

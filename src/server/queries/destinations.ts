@@ -81,7 +81,14 @@ export async function getAllDestinationsForAdmin(onlyManagerId?: string) {
     include,
     orderBy: { createdAt: "desc" },
   });
-  return rows.map((r) => ({ ...toDetail(r), status: r.status, managerId: r.managerId ?? "" }));
+  return rows.map((r) => ({
+    ...toDetail(r),
+    status: r.status,
+    managerId: r.managerId ?? "",
+    // Nilai mentah untuk form (toDetail memakai 0 untuk "belum ada koordinat").
+    coordLat: r.latitude === null ? "" : String(r.latitude),
+    coordLng: r.longitude === null ? "" : String(r.longitude),
+  }));
 }
 
 export async function getManagerOptions() {

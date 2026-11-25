@@ -41,6 +41,8 @@ export const TOURISM_CATEGORIES = [
 export const PUBLIC_NAV_LINKS = [
   { label: "Beranda", href: "/" },
   { label: "Destinasi", href: "/destinasi" },
+  { label: "Akomodasi", href: "/akomodasi" },
+  { label: "Peta", href: "/peta" },
   { label: "Kuliner", href: "/kuliner" },
   { label: "Budaya & Event", href: "/budaya-event" },
   { label: "Profil Daerah", href: "/profil" },
@@ -58,8 +60,10 @@ export const ADMIN_NAV_LINKS = [
   { label: "Kuliner & Oleh-oleh", href: "/admin/kuliner", icon: "Utensils" },
   { label: "Kalender Event", href: "/admin/event", icon: "Calendar" },
   { label: "UMKM & Produk", href: "/admin/umkm", icon: "ShoppingBag" },
+  { label: "Akomodasi", href: "/admin/akomodasi", icon: "BedDouble" },
   { label: "Berita & Warta", href: "/admin/berita", icon: "Newspaper" },
   { label: "Aspirasi & Ulasan", href: "/admin/moderasi", icon: "MessageSquare" },
   { label: "Layanan Publik", href: "/admin/layanan", icon: "Inbox" },
+  { label: "Impor & Ekspor Data", href: "/admin/data", icon: "FileSpreadsheet" },
   { label: "Manajemen Pengguna", href: "/admin/pengguna", icon: "Users" },
 ] as const;

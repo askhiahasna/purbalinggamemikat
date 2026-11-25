@@ -5,8 +5,10 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import type { SiteSettings } from "@/lib/data/cms-store";
 import { getSiteSettings, saveSiteSettings } from "@/server/queries/settings";
+import { DEPRECATED_SETTING_KEYS } from "@/lib/data/cms-store";
 import { authorize, canManageDestination } from "@/server/auth/dal";
 import { removeByUrls, verifyImageUrl } from "@/server/storage/storage";
+import { destinationSchema } from "@/lib/validation/content";
 import { ADMIN_ONLY, CONTENT_ROLES, DESTINATION_ROLES } from "@/lib/auth/permissions";
 
 // Setiap action memanggil authorize()/canManageDestination() di server (bukan hanya menyembunyikan UI).
@@ -14,6 +16,21 @@ import { ADMIN_ONLY, CONTENT_ROLES, DESTINATION_ROLES } from "@/lib/auth/permiss
 export type ActionResult<T = undefined> =
   | { success: true; data?: T }
   | { success: false; error: string };
+
+/** Tautan medsos: kosong, atau URL http/https yang valid (cegah javascript:, data:, dll). */
+const socialUrl = z
+  .string()
+  .trim()
+  .max(300)
+  .refine((v) => {
+    if (v === "") return true;
+    try {
+      const u = new URL(v);
+      return u.protocol === "https:" || u.protocol === "http:";
+    } catch {
+      return false;
+    }
+  }, "Tautan media sosial harus diawali http:// atau https://");
 
 const settingsSchema = z.object({
   siteName: z.string().trim().min(1).max(120),
@@ -34,18 +51,34 @@ const settingsSchema = z.object({
   contactEmail: z.string().trim().max(160),
   contactAddress: z.string().trim().max(300),
   heroBgUrl: z.string().trim().max(500),
-  leader1PhotoUrl: z.string().trim().max(500),
-  leader2PhotoUrl: z.string().trim().max(500),
+  leadersPhotoUrl: z.string().trim().max(500),
   statImage1Url: z.string().trim().max(500),
   statImage2Url: z.string().trim().max(500),
   statImage3Url: z.string().trim().max(500),
   statImage4Url: z.string().trim().max(500),
+  socialInstagram: socialUrl,
+  socialFacebook: socialUrl,
+  socialYoutube: socialUrl,
+  socialTiktok: socialUrl,
+  socialX: socialUrl,
+  heroPageKuliner: z.string().trim().max(500),
+  heroPageDestinasi: z.string().trim().max(500),
+  heroPageEvent: z.string().trim().max(500),
+  heroPageAkomodasi: z.string().trim().max(500),
+  heroPageUmkm: z.string().trim().max(500),
+  heroPageBerita: z.string().trim().max(500),
 });
 
 const IMAGE_KEYS = [
   "heroBgUrl",
-  "leader1PhotoUrl",
-  "leader2PhotoUrl",
+  "logoUrl",
+  "leadersPhotoUrl",
+  "heroPageKuliner",
+  "heroPageDestinasi",
+  "heroPageEvent",
+  "heroPageAkomodasi",
+  "heroPageUmkm",
+  "heroPageBerita",
   "statImage1Url",
   "statImage2Url",
   "statImage3Url",
@@ -57,7 +90,7 @@ export async function updateSiteSettingsAction(input: Partial<SiteSettings>) {
   if (!auth.ok) return { success: false as const, error: auth.error };
   const parsed = settingsSchema.partial().safeParse(input);
   if (!parsed.success) {
-    return { success: false as const, error: "Data pengaturan tidak valid." };
+    return { success: false as const, error: parsed.error.issues[0]?.message ?? "Data pengaturan tidak valid." };
   }
   try {
     // Foto: hanya URL dari bucket kita dengan objek yang benar-benar ada; foto lama dihapus bila diganti.
@@ -71,8 +104,10 @@ export async function updateSiteSettingsAction(input: Partial<SiteSettings>) {
       }
       if (current[k]) changed.push(current[k]);
     }
+    // Foto dari kunci lama (dua foto terpisah) dibersihkan sekalian dari Storage.
+    const legacy = DEPRECATED_SETTING_KEYS.map((k) => (current as unknown as Record<string, unknown>)[k]).filter((v): v is string => typeof v === "string" && !!v);
     const updated = await saveSiteSettings(parsed.data);
-    await removeByUrls(changed);
+    await removeByUrls([...changed, ...legacy]);
     revalidatePath("/", "layout");
     revalidatePath("/admin/pengaturan");
     return { success: true as const, settings: updated };
@@ -86,19 +121,6 @@ export async function updateSiteSettingsAction(input: Partial<SiteSettings>) {
 // Destinasi
 // ---------------------------------------------------------------------------
 
-const destinationSchema = z.object({
-  name: z.string().trim().min(3, "Nama minimal 3 karakter").max(150),
-  categorySlug: z.string().trim().min(1, "Kategori wajib dipilih"),
-  district: z.string().trim().min(1, "Kecamatan wajib diisi").max(80),
-  address: z.string().trim().max(300).optional(),
-  summary: z.string().trim().max(300).optional(),
-  description: z.string().trim().max(10000).optional(),
-  ticketPriceWeekday: z.coerce.number().int().min(0).max(100_000_000),
-  ticketPriceWeekend: z.coerce.number().int().min(0).max(100_000_000),
-  openingHours: z.string().trim().max(80).optional(),
-  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("PUBLISHED"),
-  managerId: z.string().trim().nullish().transform((v) => v || null),
-});
 
 export type DestinationInput = z.input<typeof destinationSchema>;
 
@@ -171,6 +193,8 @@ export async function createDestinationAction(input: DestinationInput): Promise<
         ticketPriceWeekday: d.ticketPriceWeekday,
         ticketPriceWeekend: d.ticketPriceWeekend,
         openingHours: d.openingHours || null,
+        latitude: d.latitude,
+        longitude: d.longitude,
         status: d.status,
       },
     });
@@ -221,6 +245,8 @@ export async function updateDestinationAction(id: string, input: DestinationInpu
         ticketPriceWeekday: d.ticketPriceWeekday,
         ticketPriceWeekend: d.ticketPriceWeekend,
         openingHours: d.openingHours || null,
+        latitude: d.latitude,
+        longitude: d.longitude,
         // Pengelola tidak boleh mengubah status publikasi.
         ...(isManager ? {} : { status: d.status }),
       },

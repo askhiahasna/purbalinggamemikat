@@ -21,6 +21,7 @@ import type { DestinationDetail } from "@/types/destination";
 import { formatRupiah } from "@/lib/utils";
 import type { AppRole } from "@/lib/auth/permissions";
 import { GalleryManager } from "./gallery-manager";
+import { CoordinatePicker } from "./coordinate-picker";
 import {
   createDestinationAction,
   updateDestinationAction,
@@ -28,7 +29,12 @@ import {
   type DestinationInput,
 } from "@/server/actions/cms-actions";
 
-type AdminDestination = DestinationDetail & { status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; managerId: string };
+type AdminDestination = DestinationDetail & {
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  managerId: string;
+  coordLat: string;
+  coordLng: string;
+};
 
 const EMPTY_FORM = (categorySlug: string): DestinationInput => ({
   name: "",
@@ -38,6 +44,8 @@ const EMPTY_FORM = (categorySlug: string): DestinationInput => ({
   ticketPriceWeekend: 25000,
   openingHours: "08.00 - 17.00 WIB",
   summary: "",
+  latitude: "",
+  longitude: "",
   status: "PUBLISHED",
 });
 
@@ -98,6 +106,8 @@ export function DestinationManager({
       openingHours: d.openingHours === "-" ? "" : d.openingHours,
       status: d.status,
       managerId: d.managerId,
+      latitude: d.coordLat,
+      longitude: d.coordLng,
     });
     setIsModalOpen(true);
   };
@@ -384,6 +394,12 @@ export function DestinationManager({
                   />
                 </div>
               </div>
+
+              <CoordinatePicker
+                lat={String(formData.latitude ?? "")}
+                lng={String(formData.longitude ?? "")}
+                onChange={(la, ln) => setFormData({ ...formData, latitude: la, longitude: ln })}
+              />
 
               {!isManager && (
                 <div className="grid grid-cols-2 gap-3">

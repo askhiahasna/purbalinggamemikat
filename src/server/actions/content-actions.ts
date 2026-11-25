@@ -8,17 +8,12 @@ import type { ActionResult } from "./cms-actions";
 import { authorize } from "@/server/auth/dal";
 import { removeByUrls, verifyImageUrl } from "@/server/storage/storage";
 import { CONTENT_ROLES } from "@/lib/auth/permissions";
+import { businessSchema, categoryId, culinarySchema, eventSchema, imageUrl } from "@/lib/validation/content";
 
 // Semua action admin memanggil authorize(CONTENT_ROLES) di server. Hanya submitReviewAction yang publik.
 
 type CategoryType = "CULINARY" | "EVENT" | "UMKM" | "ARTICLE";
 
-const status = z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("PUBLISHED");
-const optional = (max: number) =>
-  z.string().trim().max(max).nullish().transform((v) => v || undefined);
-const categoryId = z.string().trim().nullish().transform((v) => v || undefined);
-// Checkbox dikirim sebagai boolean; "false" string tidak boleh dianggap true.
-const bool = z.union([z.boolean(), z.enum(["true", "false"]).transform((v) => v === "true")]).default(true);
 
 function fail(err: unknown, fallback: string): ActionResult {
   console.error(err);
@@ -43,8 +38,6 @@ async function checkCategory(id: string | undefined, type: CategoryType) {
   return c?.type === type;
 }
 
-/** URL gambar dari klien: kosong -> null; selain itu harus berasal dari bucket kita & objek ada. */
-const imageUrl = z.string().trim().max(500).nullish().transform((v) => v || null);
 
 async function checkImage(url: string | null) {
   return url === null || (await verifyImageUrl(url));
@@ -55,17 +48,6 @@ const defaultAddress = (district: string) => `Kec. ${district}, Kabupaten Purbal
 
 /* ------------------------------ Kuliner ----------------------------- */
 
-const culinarySchema = z.object({
-  name: z.string().trim().min(3, "Nama minimal 3 karakter").max(150),
-  description: z.string().trim().min(1, "Deskripsi wajib diisi").max(5000),
-  district: z.string().trim().min(1, "Kecamatan wajib diisi").max(80),
-  address: optional(300),
-  priceRange: optional(80),
-  isHalal: bool,
-  imageUrl,
-  categoryId,
-  status,
-});
 
 function revalidateCulinary() {
   revalidatePath("/");
@@ -139,36 +121,6 @@ export async function deleteCulinaryAction(id: string): Promise<ActionResult> {
 
 /* ------------------------------- Event ------------------------------ */
 
-/** Input datetime-local ("YYYY-MM-DDTHH:mm", waktu WIB) -> Date. Kosong -> undefined. */
-const dateInput = z
-  .string()
-  .trim()
-  .nullish()
-  .transform((v) => {
-    if (!v) return undefined;
-    const iso = v.length === 10 ? `${v}T00:00:00+07:00` : `${v}:00+07:00`;
-    return new Date(iso);
-  });
-
-const eventSchema = z
-  .object({
-    title: z.string().trim().min(3, "Judul minimal 3 karakter").max(200),
-    description: z.string().trim().min(1, "Deskripsi wajib diisi").max(5000),
-    location: z.string().trim().min(1, "Lokasi wajib diisi").max(200),
-    organizer: optional(150),
-    startDate: dateInput,
-    endDate: dateInput,
-    bannerUrl: imageUrl,
-    categoryId,
-    status,
-  })
-  .superRefine((v, ctx) => {
-    if (!v.startDate || isNaN(v.startDate.getTime())) {
-      ctx.addIssue({ code: "custom", message: "Tanggal mulai wajib diisi", path: ["startDate"] });
-    } else if (v.endDate && (isNaN(v.endDate.getTime()) || v.endDate < v.startDate)) {
-      ctx.addIssue({ code: "custom", message: "Tanggal selesai harus setelah tanggal mulai", path: ["endDate"] });
-    }
-  });
 
 function revalidateEvents() {
   revalidatePath("/");
@@ -243,32 +195,6 @@ export async function deleteEventAction(id: string): Promise<ActionResult> {
 
 /* -------------------------------- UMKM ------------------------------ */
 
-const businessSchema = z.object({
-  name: z.string().trim().min(3, "Nama minimal 3 karakter").max(150),
-  description: z.string().trim().min(1, "Deskripsi wajib diisi").max(5000),
-  district: z.string().trim().min(1, "Kecamatan wajib diisi").max(80),
-  address: optional(300),
-  ownerName: optional(120),
-  whatsappNumber: z
-    .string()
-    .trim()
-    .regex(/^[0-9+\s-]{0,20}$/, "Nomor WhatsApp tidak valid")
-    .nullish()
-    .transform((v) => v || undefined),
-  features: z
-    .string()
-    .nullish()
-    .transform((v) =>
-      (v ?? "")
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .slice(0, 10)
-    ),
-  logoUrl: imageUrl,
-  categoryId,
-  status,
-});
 
 function revalidateBusinesses() {
   revalidatePath("/umkm");

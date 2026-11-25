@@ -213,22 +213,54 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
               />
             </div>
 
-            <div className="sm:col-span-2">
-              <label htmlFor="logo-url-input" className="block text-xs font-semibold text-stone-700 mb-1">
-                URL Gambar Logo Pemkab / Wisata (Opsional)
-              </label>
-              <input
-                id="logo-url-input"
-                type="text"
+            <div className="sm:col-span-2 space-y-1">
+              <ImageUploader
+                scope="pengaturan"
+                label="Logo (tampil di navbar & footer)"
                 value={settings.logoUrl}
-                onChange={(e) => setSettings({ ...settings, logoUrl: e.target.value })}
-                placeholder="https://... atau /images/branding/logo.png"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-primary-800"
+                onChange={(url) => setSettings((p) => ({ ...p, logoUrl: url }))}
               />
-              <p className="text-[11px] text-stone-400 mt-1">
-                Kosongkan untuk menggunakan lambang kompas default bertema Perwira.
+              <p className="text-[11px] text-stone-400">
+                Disarankan PNG/WebP persegi dengan latar transparan. Kosongkan untuk memakai lambang kompas bawaan.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* 2b. MEDIA SOSIAL */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-5">
+          <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
+            <Sparkles className="w-5 h-5 text-secondary-500" />
+            <h2 className="font-heading font-bold text-base text-stone-900">Media Sosial</h2>
+          </div>
+          <p className="text-xs text-stone-500">
+            Tautan tampil sebagai ikon di navbar dan footer. Kosongkan untuk menyembunyikan. Harus diawali <code>https://</code>.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            {(
+              [
+                ["socialInstagram", "Instagram", "https://instagram.com/akun"],
+                ["socialFacebook", "Facebook", "https://facebook.com/halaman"],
+                ["socialYoutube", "YouTube", "https://youtube.com/@kanal"],
+                ["socialTiktok", "TikTok", "https://tiktok.com/@akun"],
+                ["socialX", "X (Twitter)", "https://x.com/akun"],
+              ] as const
+            ).map(([key, label, ph]) => (
+              <div key={key}>
+                <label htmlFor={`${key}-input`} className="block font-semibold text-stone-700 mb-1">
+                  {label}
+                </label>
+                <input
+                  id={`${key}-input`}
+                  type="url"
+                  inputMode="url"
+                  value={settings[key]}
+                  onChange={(e) => setSettings((p) => ({ ...p, [key]: e.target.value }))}
+                  placeholder={ph}
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-primary-800"
+                />
+              </div>
+            ))}
           </div>
         </div>
 
@@ -323,22 +355,34 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
                 value={settings.heroBgUrl}
                 onChange={(url) => setSettings((p) => ({ ...p, heroBgUrl: url }))}
               />
-              <p className="text-[11px] text-stone-400">Disarankan lanskap beresolusi tinggi (min. 1600 px). Diberi lapisan hijau transparan otomatis agar teks terbaca.</p>
+              <p className="text-[11px] text-stone-400">Disarankan lanskap beresolusi tinggi (min. 1600 px). Memudar dari atas ke hijau solid #174C3C di bawah agar teks terbaca.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-stone-100">
+            <div className="space-y-1 pt-2 border-t border-stone-100">
               <ImageUploader
                 scope="pengaturan"
-                label={`Foto ${settings.leader1Title || "Bupati"}`}
-                value={settings.leader1PhotoUrl}
-                onChange={(url) => setSettings((p) => ({ ...p, leader1PhotoUrl: url }))}
+                label="Foto Bupati & Wakil Bupati (satu foto gabungan)"
+                value={settings.leadersPhotoUrl}
+                onChange={(url) => setSettings((p) => ({ ...p, leadersPhotoUrl: url }))}
               />
-              <ImageUploader
-                scope="pengaturan"
-                label={`Foto ${settings.leader2Title || "Wakil Bupati"}`}
-                value={settings.leader2PhotoUrl}
-                onChange={(url) => setSettings((p) => ({ ...p, leader2PhotoUrl: url }))}
-              />
+              <p className="text-[11px] text-stone-400">
+                Tampil di bagian Sambutan beranda dengan label nama mengambang. Disarankan foto berdua, orientasi landscape/persegi.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-2 border-t border-stone-100">
+              <p className="font-semibold text-stone-700">Foto Hero Halaman Menu</p>
+              <p className="text-[11px] text-stone-400">
+                Foto latar bagian atas tiap halaman. Bila kosong dipakai foto dari konten halaman itu, lalu foto hero beranda.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <ImageUploader scope="pengaturan" label="Hero halaman Kuliner" value={settings.heroPageKuliner} onChange={(url) => setSettings((p) => ({ ...p, heroPageKuliner: url }))} />
+                <ImageUploader scope="pengaturan" label="Hero halaman Jelajah / Destinasi" value={settings.heroPageDestinasi} onChange={(url) => setSettings((p) => ({ ...p, heroPageDestinasi: url }))} />
+                <ImageUploader scope="pengaturan" label="Hero halaman Acara & Budaya" value={settings.heroPageEvent} onChange={(url) => setSettings((p) => ({ ...p, heroPageEvent: url }))} />
+                <ImageUploader scope="pengaturan" label="Hero halaman Akomodasi" value={settings.heroPageAkomodasi} onChange={(url) => setSettings((p) => ({ ...p, heroPageAkomodasi: url }))} />
+                <ImageUploader scope="pengaturan" label="Hero halaman UMKM" value={settings.heroPageUmkm} onChange={(url) => setSettings((p) => ({ ...p, heroPageUmkm: url }))} />
+                <ImageUploader scope="pengaturan" label="Hero halaman Berita" value={settings.heroPageBerita} onChange={(url) => setSettings((p) => ({ ...p, heroPageBerita: url }))} />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-stone-100">

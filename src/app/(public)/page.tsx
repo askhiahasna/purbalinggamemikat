@@ -61,10 +61,13 @@ export default async function HomePage() {
       {/* 1. HERO SLIDER */}
       <HeroSlider settings={settings} destinations={heroDestinations} />
 
-      {/* 2. DYNAMIC RUNNING TICKER FROM CMS (AYO DOLAN PURBALINGGA!) */}
+      {/* 2. SAMBUTAN BUPATI & WAKIL BUPATI (langsung setelah Hero) */}
+      <AboutSection settings={settings} />
+
+      {/* 3. TICKER DARI CMS (AYO DOLAN PURBALINGGA!) */}
       <MarqueeBanner />
 
-      {/* 3. THREE INTERACTIVE PILLARS: 01 WISATA, 02 KULINER, 03 ACARA MENDATANG */}
+      {/* 4. THREE INTERACTIVE PILLARS: 01 WISATA, 02 KULINER, 03 ACARA MENDATANG */}
       <InteractivePillars />
 
       {/* 4. HIGHLIGHT 01: WISATA PILIHAN */}
@@ -75,9 +78,6 @@ export default async function HomePage() {
 
       {/* 6. HIGHLIGHT 03: ACARA & FESTIVAL MENDATANG */}
       <HighlightEvent />
-
-      {/* 7. SEKILAS PURBALINGGA & LEADERSHIP SHOWCASE */}
-      <AboutSection settings={settings} />
 
       {/* 8. STATISTIK PURBALINGGA MEMIKAT */}
       <StatsSection stats={stats} images={statImages} />

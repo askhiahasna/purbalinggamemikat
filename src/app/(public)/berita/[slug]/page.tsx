@@ -52,7 +52,7 @@ export default async function BeritaDetailPage({ params }: Props) {
         ]}
       />
 
-      <header className="relative overflow-hidden bg-primary-950 text-white pt-16 pb-20 sm:pt-24 sm:pb-28">
+      <header className="relative overflow-hidden bg-primary-950 text-white pt-28 pb-20 sm:pt-32 sm:pb-28">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-teal-950/80 opacity-95" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <Link href="/berita" className="inline-flex items-center gap-1.5 text-xs text-stone-300 hover:text-white transition-colors">

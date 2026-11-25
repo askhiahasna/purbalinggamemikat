@@ -28,7 +28,7 @@ export function timeAgo(d: Date, now = new Date()) {
 export async function getStaffDashboard(opts: { includeUsers: boolean }) {
   const now = new Date();
   const [
-    dest, culinary, event, business, article,
+    dest, culinary, event, business, article, accommodation,
     upcomingEvents, pendingReviews, pendingSubs, pendingByType,
     noPhoto, umkmDrafts, recentSubs, reviewQueue, nextEvents, userRoles,
   ] = await Promise.all([
@@ -37,6 +37,7 @@ export async function getStaffDashboard(opts: { includeUsers: boolean }) {
     prisma.event.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.business.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.article.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.accommodation.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.event.count({ where: { status: "PUBLISHED", OR: [{ startDate: { gte: now } }, { endDate: { gte: now } }] } }),
     prisma.review.count({ where: { isApproved: false } }),
     prisma.publicSubmission.count({ where: { status: "PENDING" } }),
@@ -75,6 +76,7 @@ export async function getStaffDashboard(opts: { includeUsers: boolean }) {
     events: { ...toCounts(event), upcoming: upcomingEvents },
     businesses: toCounts(business),
     articles: toCounts(article),
+    accommodations: toCounts(accommodation),
     pendingReviews,
     pendingSubs,
     pendingByType: byType,

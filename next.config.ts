@@ -10,6 +10,10 @@ const supabaseHost = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  // Opsional: direktori build terpisah (mis. verifikasi produksi tanpa mengganggu `next dev`).
+  ...(process.env.NEXT_DIST_DIR
+    ? { distDir: process.env.NEXT_DIST_DIR, typescript: { tsconfigPath: "tsconfig.verify.json" } }
+    : {}),
   experimental: {
     cpus: 1,
   },

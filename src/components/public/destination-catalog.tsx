@@ -18,17 +18,27 @@ import {
 import type { DestinationDetail } from "@/types/destination";
 import { PURBALINGGA_DISTRICTS } from "@/lib/constants";
 import { formatRupiah } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WishlistButton } from "@/components/public/wishlist";
 import { CoverImage } from "@/components/ui/cover-image";
 
 export function DestinationCatalog({
   destinations,
+  initialCategory = "semua",
+  initialQuery = "",
 }: {
   destinations: DestinationDetail[];
+  initialCategory?: string;
+  initialQuery?: string;
 }) {
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedCategory, setSelectedCategory] = React.useState<string>("semua");
+  const [searchQuery, setSearchQuery] = React.useState(initialQuery);
+  const [selectedCategory, setSelectedCategory] = React.useState<string>(initialCategory);
+  const [seenParams, setSeenParams] = React.useState(`${initialCategory}|${initialQuery}`);
+  if (seenParams !== `${initialCategory}|${initialQuery}`) {
+    setSeenParams(`${initialCategory}|${initialQuery}`);
+    setSelectedCategory(initialCategory);
+    setSearchQuery(initialQuery);
+  }
   const [selectedDistrict, setSelectedDistrict] = React.useState<string>("semua");
   const [priceFilter, setPriceFilter] = React.useState<string>("semua");
   const [sortBy, setSortBy] = React.useState<string>("rekomendasi");
@@ -86,41 +96,24 @@ export function DestinationCatalog({
 
   return (
     <div className="space-y-12 pb-20">
-      {/* 1. HEADER HERO CATALOG */}
-      <section className="relative overflow-hidden bg-primary-950 text-white pt-20 pb-24 sm:pt-28 sm:pb-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-teal-950/80 opacity-95" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(194,136,53,0.2),transparent_60%)]" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-5">
-          <Badge variant="secondary" className="px-3.5 py-1 text-xs uppercase tracking-widest font-bold">
-            ✦ Eksplorasi Bumi Perwira
-          </Badge>
-          <h1 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-3xl mx-auto leading-tight">
-            Destinasi Wisata <span className="text-secondary-400">Purbalingga</span>
-          </h1>
-          <p className="font-body text-sm sm:text-base text-stone-200 max-w-2xl mx-auto leading-relaxed">
-            Temukan lebih dari 50 keindahan tersembunyi lereng Gunung Slamet, kesejukan mata air alami,
-            gua vulkanik kuno, hingga desa wisata asri di 18 kecamatan.
-          </p>
-
-          {/* Search Box in Hero */}
-          <div className="max-w-2xl mx-auto pt-4">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari nama objek wisata, curug, goa, atau kecamatan..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-sm text-white placeholder-stone-300 focus:outline-none focus:bg-white/20 focus:border-secondary-400 shadow-xl transition-all"
-              />
-            </div>
-          </div>
+      {/* 1. JUDUL KATALOG + PENCARIAN (hero kini ada di halaman) */}
+      <section id="katalog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 scroll-mt-24 space-y-6 text-center">
+        <h2 className="font-display font-semibold text-3xl sm:text-5xl text-primary-800">Semua Destinasi</h2>
+        <div className="max-w-2xl mx-auto relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari nama objek wisata, curug, goa, atau kecamatan..."
+            aria-label="Cari destinasi"
+            className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-stone-300 text-sm text-stone-900 placeholder-stone-500 focus:outline-none focus:border-primary-800 shadow-sm"
+          />
         </div>
       </section>
 
       {/* 2. CATEGORY PILLS FILTER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none sm:justify-center">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -132,7 +125,7 @@ export function DestinationCatalog({
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-heading font-semibold whitespace-nowrap transition-all shadow-md cursor-pointer ${
                   isSelected
-                    ? "bg-secondary-500 text-white border border-secondary-400"
+                    ? "bg-secondary-500 text-primary-950 font-semibold border border-secondary-400"
                     : "bg-white hover:bg-stone-50 text-stone-700 border border-stone-200"
                 }`}
               >
@@ -251,6 +244,7 @@ export function DestinationCatalog({
                   {/* Photo Frame with Gradient & Badge */}
                   <div className={`h-52 bg-gradient-to-t ${item.coverGradient} relative isolate p-4 flex flex-col justify-between overflow-hidden`}>
                     <CoverImage src={item.coverUrl} alt={item.name} />
+                    <WishlistButton slug={item.slug} name={item.name} className="absolute bottom-3 right-3 z-20" />
                     <div className="flex items-center justify-between z-10">
                       <span className="px-2.5 py-1 rounded-md bg-black/50 backdrop-blur-xs text-[11px] font-semibold text-secondary-300 border border-white/10">
                         {item.categoryLabel}

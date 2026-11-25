@@ -4,7 +4,7 @@ import { getPublishedCulinary } from "@/server/queries/content";
 import { CoverImage } from "@/components/ui/cover-image";
 
 export async function HighlightKuliner() {
-  const kulinerHighlights = (await getPublishedCulinary(4)).map((c) => ({ name: c.name, district: c.district, price: c.priceRange, desc: c.desc, imageUrl: c.imageUrl }));
+  const kulinerHighlights = (await getPublishedCulinary(4)).map((c) => ({ id: c.id, name: c.name, district: c.district, price: c.priceRange, desc: c.desc, imageUrl: c.imageUrl }));
 
   return (
     <section className="py-20 bg-mist">
@@ -65,8 +65,8 @@ export async function HighlightKuliner() {
               <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs mt-3">
                 <span className="font-bold text-primary-800">{item.price}</span>
                 <Link
-                  href="/kuliner"
-                  className="font-semibold text-secondary-600 hover:underline flex items-center gap-1"
+                  href={`/kuliner/${item.id}`}
+                  className="font-semibold text-secondary-700 hover:underline flex items-center gap-1"
                 >
                   Detail <ArrowRight className="w-3 h-3" />
                 </Link>

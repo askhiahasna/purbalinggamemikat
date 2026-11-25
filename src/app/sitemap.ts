@@ -8,6 +8,8 @@ export const dynamic = "force-dynamic";
 const STATIC: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" }[] = [
   { path: "/", priority: 1, changeFrequency: "daily" },
   { path: "/destinasi", priority: 0.9, changeFrequency: "weekly" },
+  { path: "/akomodasi", priority: 0.7, changeFrequency: "weekly" },
+  { path: "/peta", priority: 0.7, changeFrequency: "monthly" },
   { path: "/kuliner", priority: 0.7, changeFrequency: "weekly" },
   { path: "/budaya-event", priority: 0.7, changeFrequency: "weekly" },
   { path: "/umkm", priority: 0.6, changeFrequency: "weekly" },
@@ -25,10 +27,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
-    const [destinations, articles] = await Promise.all([
+    const [destinations, articles, culinary] = await Promise.all([
       prisma.destination.findMany({ where: { status: "PUBLISHED" }, select: { slug: true, updatedAt: true } }),
       prisma.article.findMany({ where: { status: "PUBLISHED" }, select: { slug: true, updatedAt: true, publishedAt: true } }),
+      prisma.culinary.findMany({ where: { status: "PUBLISHED" }, select: { slug: true, updatedAt: true } }),
     ]);
+    for (const c of culinary) {
+      entries.push({ url: absoluteUrl(`/kuliner/${c.slug}`), lastModified: c.updatedAt, changeFrequency: "monthly", priority: 0.6 });
+    }
     for (const d of destinations) {
       entries.push({ url: absoluteUrl(`/destinasi/${d.slug}`), lastModified: d.updatedAt, changeFrequency: "weekly", priority: 0.8 });
     }

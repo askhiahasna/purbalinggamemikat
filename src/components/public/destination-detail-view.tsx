@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { submitReviewAction } from "@/server/actions/content-actions";
 import { CoverImage } from "@/components/ui/cover-image";
+import { WishlistButton } from "@/components/public/wishlist";
 import Image from "next/image";
 
 export function DestinationDetailView({
@@ -115,6 +116,7 @@ export function DestinationDetailView({
             </div>
 
             {/* Share Button */}
+            <WishlistButton slug={destination.slug} name={destination.name} className="!bg-stone-100 !text-stone-600 !border-stone-200 hover:!bg-stone-200" />
             <button
               type="button"
               onClick={handleShare}

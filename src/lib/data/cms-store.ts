@@ -19,12 +19,25 @@ export interface SiteSettings {
   contactAddress: string;
   /** Foto beranda (URL Supabase Storage). Kosong = pakai fallback. */
   heroBgUrl: string;
-  leader1PhotoUrl: string;
-  leader2PhotoUrl: string;
+  /** Satu foto gabungan Bupati & Wakil Bupati. */
+  leadersPhotoUrl: string;
   statImage1Url: string;
   statImage2Url: string;
   statImage3Url: string;
   statImage4Url: string;
+  /** Tautan media sosial (http/https). Kosong = tidak ditampilkan. */
+  socialInstagram: string;
+  socialFacebook: string;
+  socialYoutube: string;
+  socialTiktok: string;
+  socialX: string;
+  /** Foto hero tiap halaman menu (kosong = foto dari konten, lalu hero beranda). */
+  heroPageKuliner: string;
+  heroPageDestinasi: string;
+  heroPageEvent: string;
+  heroPageAkomodasi: string;
+  heroPageUmkm: string;
+  heroPageBerita: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -55,10 +68,23 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   contactEmail: "info@purbalinggakab.go.id",
   contactAddress: "Jl. Jenderal Soedirman No. 1, Purbalingga, Jawa Tengah 53311",
   heroBgUrl: "",
-  leader1PhotoUrl: "",
-  leader2PhotoUrl: "",
+  leadersPhotoUrl: "",
   statImage1Url: "",
   statImage2Url: "",
   statImage3Url: "",
   statImage4Url: "",
+  socialInstagram: "",
+  socialFacebook: "",
+  socialYoutube: "",
+  socialTiktok: "",
+  socialX: "",
+  heroPageKuliner: "",
+  heroPageDestinasi: "",
+  heroPageEvent: "",
+  heroPageAkomodasi: "",
+  heroPageUmkm: "",
+  heroPageBerita: "",
 };
+
+/** Kunci lama yang sudah tidak dipakai (dibersihkan saat pengaturan disimpan). */
+export const DEPRECATED_SETTING_KEYS = ["leader1PhotoUrl", "leader2PhotoUrl"] as const;

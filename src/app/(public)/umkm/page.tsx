@@ -6,6 +6,11 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbLd, itemListLd } from "@/lib/structured-data";
 import { pageMetadata } from "@/lib/seo";
+import { SectionHero } from "@/components/public/section/section-hero";
+import { RecommendationSection } from "@/components/public/section/recommendations";
+import { pickHero, tileIcon } from "@/components/public/section/helpers";
+import { getSiteSettings } from "@/server/queries/settings";
+import { slugify } from "@/lib/utils";
 
 // Konten berasal dari PostgreSQL (CMS) — dirender per-request.
 export const dynamic = "force-dynamic";
@@ -17,11 +22,15 @@ export const metadata: Metadata = pageMetadata({
   path: "/umkm",
 });
 
-export default async function UmkmPage() {
-  const umkmList = await getPublishedBusinesses();
+export default async function UmkmPage({ searchParams }: { searchParams: Promise<{ kategori?: string }> }) {
+  const { kategori } = await searchParams;
+  const [allUmkm, settings] = await Promise.all([getPublishedBusinesses(), getSiteSettings()]);
+  const umkmList = kategori ? allUmkm.filter((u) => slugify(u.tag) === kategori) : allUmkm;
+  const tags = [...new Set(allUmkm.map((u) => u.tag))].slice(0, 4);
+  const recommended = [...allUmkm.filter((u) => u.imageUrl), ...allUmkm.filter((u) => !u.imageUrl)].slice(0, 4);
 
   return (
-    <div className="space-y-16 pb-20">
+    <div>
       <JsonLd
         data={[
           breadcrumbLd([
@@ -30,31 +39,25 @@ export default async function UmkmPage() {
           ]),
           itemListLd(
             "UMKM & Produk Unggulan Purbalingga",
-            umkmList.map((u) => ({ name: u.name, image: u.imageUrl, description: u.desc }))
+            allUmkm.map((u) => ({ name: u.name, image: u.imageUrl, description: u.desc }))
           ),
         ]}
       />
-      {/* 1. HERO HEADER */}
-      <section className="relative overflow-hidden bg-primary-950 text-white pt-20 pb-28 sm:pt-28 sm:pb-36">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-amber-950/80 opacity-95" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,163,115,0.25),transparent_60%)]" />
+      <SectionHero
+        image={pickHero(settings.heroPageUmkm, allUmkm.find((u) => u.imageUrl)?.imageUrl, settings.heroBgUrl)}
+        title={["UMKM", "Purbalingga"]}
+        subtitle="Produk unggulan pelaku usaha lokal: dari knalpot, batik, hingga gula kelapa organik"
+        tiles={tags.map((t) => ({ label: t, href: `/umkm?kategori=${slugify(t)}#katalog`, Icon: tileIcon(t, ShoppingBag) }))}
+      />
+      <RecommendationSection
+        id="rekomendasi"
+        title="Produk Unggulan Purbalingga"
+        items={recommended.map((u) => ({ id: u.id, name: u.name, image: u.imageUrl, href: `/umkm#${u.id}` }))}
+      />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4" data-reveal="fade">
-          <Badge variant="secondary" className="px-3.5 py-1 text-xs uppercase tracking-widest font-bold">
-            ✦ Ekonomi Kreatif & Kerakyatan
-          </Badge>
-          <h1 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-3xl mx-auto leading-tight">
-            Produk Unggulan & UMKM <span className="text-secondary-400">Purbalingga</span>
-          </h1>
-          <p className="font-body text-sm sm:text-base text-stone-200 max-w-2xl mx-auto leading-relaxed">
-            Dari ketelitian pengrajin bulu mata dunia, kehandalan sentra knalpot Sayangan,
-            hingga keaslian gula kelapa organik bersertifikasi internasional.
-          </p>
-        </div>
-      </section>
 
       {/* 2. DIRECTORY UMKM */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <section id="katalog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 py-14 sm:py-20 scroll-mt-24">
         <div className="border-b border-stone-200 pb-4 flex items-center justify-between">
           <div>
             <span className="text-xs uppercase tracking-widest text-secondary-600 font-bold block">
@@ -73,6 +76,7 @@ export default async function UmkmPage() {
           {umkmList.map((item) => (
             <div
               key={item.id}
+              id={item.id}
               className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-xl hover:border-secondary-500 transition-all flex flex-col justify-between" data-reveal
             >
               <div className="space-y-4">

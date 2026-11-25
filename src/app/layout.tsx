@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
+import { DM_Serif_Display, Federo, Montserrat, Oswald, Poppins } from "next/font/google";
 import "./globals.css";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_TAGLINE, siteUrl } from "@/lib/seo";
+
+// Web font di-host sendiri oleh Next (diunduh saat build) — tidak ada request ke Google saat runtime.
+// Peran: Federo = identitas merek, Poppins = judul pendukung, DM Serif Display = judul editorial, Montserrat = isi.
+const federo = Federo({ subsets: ["latin"], weight: "400", display: "swap", variable: "--font-federo" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font-poppins" });
+const dmSerif = DM_Serif_Display({ subsets: ["latin"], weight: "400", display: "swap", variable: "--font-dm-serif" });
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], style: ["normal", "italic"], display: "swap", variable: "--font-montserrat" });
+
+const oswald = Oswald({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], display: "swap", variable: "--font-oswald" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -38,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="id" className={`h-full antialiased ${federo.variable} ${poppins.variable} ${dmSerif.variable} ${montserrat.variable} ${oswald.variable}`} suppressHydrationWarning>
       <head>
         {/* Aktifkan mode animasi sebelum cat pertama (tanpa kilatan); dilewati bila pengguna memilih kurangi gerakan. */}
         <script
@@ -49,7 +59,6 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-body selection:bg-secondary-500 selection:text-white">
-        {/* Fonts loaded via CSS @import in globals.css */}
         {children}
       </body>
     </html>

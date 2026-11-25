@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { ActionResult } from "@/server/actions/cms-actions";
 import { ImageUploader, type UploadScope } from "./image-uploader";
+import { CoordinatePicker } from "./coordinate-picker";
 
 export type FieldValue = string | boolean;
 export type FormValues = Record<string, FieldValue>;
@@ -13,7 +14,7 @@ export type FormValues = Record<string, FieldValue>;
 export interface FieldDef {
   name: string;
   label: string;
-  type: "text" | "textarea" | "select" | "checkbox" | "datetime-local" | "password" | "multicheck" | "image";
+  type: "text" | "textarea" | "select" | "checkbox" | "datetime-local" | "password" | "multicheck" | "image" | "coordinates";
   required?: boolean;
   placeholder?: string;
   options?: { value: string; label: string }[];
@@ -21,6 +22,8 @@ export interface FieldDef {
   full?: boolean;
   rows?: number;
   hint?: string;
+  /** Untuk type "coordinates": nama field longitude (field ini = latitude). */
+  pairName?: string;
   /** Untuk type "image": folder penyimpanan. */
   scope?: UploadScope;
   /** Tampilkan field hanya bila kondisi terpenuhi (mis. berdasarkan role yang dipilih). */
@@ -234,9 +237,16 @@ export function EntityManager<T extends { id: string }>(props: Props<T>) {
                 {fields.filter((f) => !f.showIf || f.showIf(values)).map((f) => (
                   <div
                     key={f.name}
-                    className={f.full || f.type === "textarea" || f.type === "multicheck" || f.type === "image" ? "sm:col-span-2" : ""}
+                    className={f.full || f.type === "textarea" || f.type === "multicheck" || f.type === "image" || f.type === "coordinates" ? "sm:col-span-2" : ""}
                   >
-                    {f.type === "image" ? (
+                    {f.type === "coordinates" ? (
+                      <CoordinatePicker
+                        label={f.label}
+                        lat={String(values[f.name] ?? "")}
+                        lng={String(values[f.pairName ?? "longitude"] ?? "")}
+                        onChange={(la, ln) => setValues({ ...values, [f.name]: la, [f.pairName ?? "longitude"]: ln })}
+                      />
+                    ) : f.type === "image" ? (
                       <ImageUploader
                         scope={f.scope ?? "berita"}
                         entityId={editingId}

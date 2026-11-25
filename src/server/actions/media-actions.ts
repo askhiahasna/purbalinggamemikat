@@ -16,7 +16,7 @@ import {
 import { MAX_GALLERY_IMAGES } from "@/lib/media";
 import type { ActionResult } from "./cms-actions";
 
-const SCOPES = ["destinasi", "berita", "kuliner", "umkm", "event", "pengaturan"] as const;
+const SCOPES = ["destinasi", "berita", "kuliner", "umkm", "event", "pengaturan", "akomodasi"] as const;
 
 const uploadSchema = z.object({
   scope: z.enum(SCOPES),

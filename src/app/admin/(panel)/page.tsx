@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Star,
   ImageOff,
+  BedDouble,
   type LucideIcon,
 } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -44,6 +45,7 @@ const QUICK_LINKS: QuickLink[] = [
   { href: "/admin/kuliner", title: "Kelola Kuliner", desc: "Katalog makanan khas dan oleh-oleh.", icon: Utensils },
   { href: "/admin/event", title: "Kalender Event", desc: "Agenda festival dan tradisi budaya.", icon: Calendar },
   { href: "/admin/umkm", title: "UMKM & Produk", desc: "Pelaku usaha dan produk unggulan.", icon: ShoppingBag },
+  { href: "/admin/akomodasi", title: "Akomodasi", desc: "Hotel, homestay, dan penginapan wisata.", icon: BedDouble },
   { href: "/admin/berita", title: "Berita & Warta", desc: "Tulis dan terbitkan berita.", icon: Newspaper },
   { href: "/admin/moderasi", title: "Moderasi Ulasan", desc: "Setujui ulasan pengunjung.", icon: MessageSquare },
   { href: "/admin/layanan", title: "Layanan Publik", desc: "Pengaduan, kontak, pendaftaran, survei.", icon: Inbox },
@@ -174,6 +176,7 @@ async function StaffView({ role }: { role: AppRole }) {
         <StatCard title="Kuliner" value={d.culinary.total} sub={sub(d.culinary)} href="/admin/kuliner" icon={Utensils} />
         <StatCard title="Event" value={d.events.total} sub={`${d.events.upcoming} akan datang • ${d.events.DRAFT} draf`} href="/admin/event" icon={Calendar} />
         <StatCard title="UMKM" value={d.businesses.total} sub={sub(d.businesses)} href="/admin/umkm" icon={ShoppingBag} />
+        <StatCard title="Akomodasi" value={d.accommodations.total} sub={sub(d.accommodations)} href="/admin/akomodasi" icon={BedDouble} />
         <StatCard title="Berita" value={d.articles.total} sub={sub(d.articles)} href="/admin/berita" icon={Newspaper} />
         <StatCard title="Ulasan Menunggu" value={d.pendingReviews} sub="antrean moderasi" href="/admin/moderasi" icon={MessageSquare} alert={d.pendingReviews > 0} />
         <StatCard

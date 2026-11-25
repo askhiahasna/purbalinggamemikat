@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, MapPin, Star } from "lucide-react";
 import { getPublishedDestinations } from "@/server/queries/destinations";
 import { formatRupiah } from "@/lib/utils";
+import { WishlistButton } from "@/components/public/wishlist";
 import { CoverImage } from "@/components/ui/cover-image";
 
 export async function HighlightDestinasi() {
@@ -40,6 +41,7 @@ export async function HighlightDestinasi() {
               <div>
                 <div className={`h-52 bg-gradient-to-t ${item.coverGradient} p-4 flex flex-col justify-between relative isolate overflow-hidden`}>
                   <CoverImage src={item.coverUrl} alt={item.name} />
+                  <WishlistButton slug={item.slug} name={item.name} className="absolute bottom-3 right-3 z-20" />
                   <div className="flex items-center justify-between z-10">
                     <span className="px-2.5 py-1 rounded-md bg-black/50 backdrop-blur-xs text-[11px] font-semibold text-secondary-300 border border-white/10">
                       {item.categoryLabel}

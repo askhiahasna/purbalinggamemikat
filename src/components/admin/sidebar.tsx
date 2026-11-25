@@ -14,6 +14,8 @@ import {
   MessageSquare,
   Users,
   Inbox,
+  BedDouble,
+  FileSpreadsheet,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -30,6 +32,8 @@ export function AdminSidebar({ role, badges = {} }: { role: AppRole; badges?: Re
     MessageSquare: <MessageSquare className="w-4 h-4" />,
     Users: <Users className="w-4 h-4" />,
     Inbox: <Inbox className="w-4 h-4" />,
+    BedDouble: <BedDouble className="w-4 h-4" />,
+    FileSpreadsheet: <FileSpreadsheet className="w-4 h-4" />,
   };
 
   return (

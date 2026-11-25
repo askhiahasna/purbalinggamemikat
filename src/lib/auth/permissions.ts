@@ -27,6 +27,8 @@ export const ROUTE_ROLES: Record<string, AppRole[]> = {
   "/admin/berita": CONTENT_ROLES,
   "/admin/moderasi": CONTENT_ROLES,
   "/admin/layanan": CONTENT_ROLES,
+  "/admin/akomodasi": CONTENT_ROLES,
+  "/admin/data": CONTENT_ROLES,
   "/admin/pengaturan": ADMIN_ONLY,
   "/admin/pengguna": ADMIN_ONLY,
 };

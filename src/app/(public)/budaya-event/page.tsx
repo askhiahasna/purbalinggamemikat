@@ -6,6 +6,11 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbLd, eventLd } from "@/lib/structured-data";
 import { pageMetadata } from "@/lib/seo";
+import { SectionHero } from "@/components/public/section/section-hero";
+import { RecommendationSection } from "@/components/public/section/recommendations";
+import { pickHero, tileIcon } from "@/components/public/section/helpers";
+import { getSiteSettings } from "@/server/queries/settings";
+import { slugify } from "@/lib/utils";
 
 // Konten berasal dari PostgreSQL (CMS) — dirender per-request.
 export const dynamic = "force-dynamic";
@@ -17,8 +22,12 @@ export const metadata: Metadata = pageMetadata({
   path: "/budaya-event",
 });
 
-export default async function BudayaEventPage() {
-  const events = await getPublishedEvents();
+export default async function BudayaEventPage({ searchParams }: { searchParams: Promise<{ kategori?: string }> }) {
+  const { kategori } = await searchParams;
+  const [allEvents, settings] = await Promise.all([getPublishedEvents(), getSiteSettings()]);
+  const events = kategori ? allEvents.filter((e) => slugify(e.category) === kategori) : allEvents;
+  const cats = [...new Set(allEvents.map((e) => e.category))].slice(0, 4);
+  const recommended = [...allEvents.filter((e) => e.imageUrl), ...allEvents.filter((e) => !e.imageUrl)].slice(0, 4);
 
   const arts = [
     {
@@ -44,37 +53,31 @@ export default async function BudayaEventPage() {
   ];
 
   return (
-    <div className="space-y-16 pb-20">
+    <div>
       <JsonLd
         data={[
           breadcrumbLd([
             { name: "Beranda", path: "/" },
             { name: "Budaya & Event", path: "/budaya-event" },
           ]),
-          ...events.map(eventLd),
+          ...allEvents.map(eventLd),
         ]}
       />
-      {/* 1. HERO HEADER */}
-      <section className="relative overflow-hidden bg-primary-950 text-white pt-20 pb-28 sm:pt-28 sm:pb-36">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-amber-950/80 opacity-95" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,163,115,0.25),transparent_60%)]" />
+      <SectionHero
+        image={pickHero(settings.heroPageEvent, allEvents.find((e) => e.imageUrl)?.imageUrl, settings.heroBgUrl)}
+        title={["Acara", "Purbalingga"]}
+        subtitle="Festival, tradisi, dan pertunjukan seni budaya khas Banyumasan sepanjang tahun"
+        tiles={cats.map((c) => ({ label: c, href: `/budaya-event?kategori=${slugify(c)}#katalog`, Icon: tileIcon(c, Calendar) }))}
+      />
+      <RecommendationSection
+        id="rekomendasi"
+        title="Agenda Acara Pilihan"
+        items={recommended.map((e) => ({ id: e.id, name: e.title, image: e.imageUrl, href: `/budaya-event#${e.id}`, gradient: "from-primary-700 to-primary-900" }))}
+      />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4" data-reveal="fade">
-          <Badge variant="secondary" className="px-3.5 py-1 text-xs uppercase tracking-widest font-bold">
-            ✦ Seni, Budaya & Tradisi
-          </Badge>
-          <h1 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-3xl mx-auto leading-tight">
-            Kalender Event & Budaya <span className="text-secondary-400">Purbalingga</span>
-          </h1>
-          <p className="font-body text-sm sm:text-base text-stone-200 max-w-2xl mx-auto leading-relaxed">
-            Menyaksikan perayaan tradisi ruwat bumi, ritus sejarah Onje, gemerlap festival Klawing,
-            serta dentum rancak calung dan kesenian Ebeg khas Banyumasan.
-          </p>
-        </div>
-      </section>
 
       {/* 2. KALENDER EVENT AGENDA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <section id="katalog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 py-14 sm:py-20 scroll-mt-24">
         <div className="border-b border-stone-200 pb-4">
           <span className="text-xs uppercase tracking-widest text-secondary-600 font-bold block">
             Agenda Resmi 2026
@@ -88,6 +91,7 @@ export default async function BudayaEventPage() {
           {events.map((ev) => (
             <div
               key={ev.id}
+              id={ev.id}
               className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-lg hover:border-secondary-500 transition-all space-y-4" data-reveal
             >
               <CardPhoto src={ev.imageUrl} alt={ev.title} />
@@ -119,7 +123,7 @@ export default async function BudayaEventPage() {
       </section>
 
       {/* 3. SENI TRADISIONAL KHAS BANYUMASAN */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-20">
         <div className="border-b border-stone-200 pb-4">
           <span className="text-xs uppercase tracking-widest text-secondary-600 font-bold block">
             Warisan Leluhur

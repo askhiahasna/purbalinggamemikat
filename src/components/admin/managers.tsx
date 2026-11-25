@@ -16,12 +16,19 @@ import {
   updateArticleAction,
   deleteArticleAction,
 } from "@/server/actions/content-actions";
+import {
+  createAccommodationAction,
+  updateAccommodationAction,
+  deleteAccommodationAction,
+} from "@/server/actions/accommodation-actions";
+import { ACCOMMODATION_TYPES, ACCOMMODATION_TYPE_LABEL } from "@/lib/validation/content";
 import type {
   getCulinaryForAdmin,
   getEventsForAdmin,
   getBusinessesForAdmin,
   getArticlesForAdmin,
 } from "@/server/queries/content";
+import type { getAccommodationsForAdmin } from "@/server/queries/accommodation";
 
 type Cat = { id: string; name: string }[];
 const catOptions = (c: Cat) => c.map((x) => ({ value: x.id, label: x.name }));
@@ -39,6 +46,7 @@ export function CulinaryManager({ rows, categories }: { rows: CulinaryRow[]; cat
     districtField,
     { name: "priceRange", label: "Kisaran Harga", type: "text", placeholder: "Rp 10.000 - Rp 25.000" },
     { name: "address", label: "Alamat / Sentra", type: "text" },
+    { name: "latitude", pairName: "longitude", label: "Koordinat Lokasi", type: "coordinates" },
     { name: "description", label: "Deskripsi", type: "textarea", required: true },
     { name: "isHalal", label: "Halal", type: "checkbox" },
     { name: "imageUrl", label: "Foto Kuliner", type: "image", scope: "kuliner" },
@@ -53,6 +61,8 @@ export function CulinaryManager({ rows, categories }: { rows: CulinaryRow[]; cat
     description: r.description,
     isHalal: r.isHalal,
     imageUrl: r.imageUrl,
+    latitude: r.latitude,
+    longitude: r.longitude,
     status: r.status,
   });
   return (
@@ -65,7 +75,7 @@ export function CulinaryManager({ rows, categories }: { rows: CulinaryRow[]; cat
       searchPlaceholder="Cari kuliner atau kecamatan..."
       rows={rows}
       fields={fields}
-      emptyForm={{ name: "", categoryId: categories[0]?.id ?? "", district: "", priceRange: "", address: "", description: "", isHalal: true, imageUrl: "", status: "PUBLISHED" }}
+      emptyForm={{ name: "", categoryId: categories[0]?.id ?? "", district: "", priceRange: "", address: "", description: "", isHalal: true, imageUrl: "", latitude: "", longitude: "", status: "PUBLISHED" }}
       toForm={toForm}
       searchText={(r) => `${r.name} ${r.district}`}
       rowName={(r) => r.name}
@@ -237,6 +247,78 @@ export function ArticleManager({ rows, categories }: { rows: ArticleRow[]; categ
         { header: "Judul", render: (r) => <span className="font-heading font-semibold text-stone-900 line-clamp-1">{r.title}</span> },
         { header: "Kategori", render: (r) => <Badge variant="primary" className="text-[10px]">{r.categoryName}</Badge> },
         { header: "Tanggal", render: (r) => r.dateLabel },
+        { header: "Status", render: (r) => <StatusBadge status={r.status} /> },
+      ]}
+    />
+  );
+}
+
+/* ----------------------------- Akomodasi ---------------------------- */
+
+type AccommodationRow = Awaited<ReturnType<typeof getAccommodationsForAdmin>>[number];
+
+export function AccommodationManager({ rows }: { rows: AccommodationRow[] }) {
+  const fields: FieldDef[] = [
+    { name: "name", label: "Nama Penginapan", type: "text", required: true, full: true },
+    {
+      name: "type",
+      label: "Jenis",
+      type: "select",
+      required: true,
+      options: ACCOMMODATION_TYPES.map((t) => ({ value: t, label: ACCOMMODATION_TYPE_LABEL[t] })),
+    },
+    districtField,
+    { name: "address", label: "Alamat", type: "text", full: true },
+    { name: "priceFrom", label: "Tarif mulai / malam (Rp)", type: "text", placeholder: "150000" },
+    { name: "priceTo", label: "Tarif sampai / malam (Rp)", type: "text", placeholder: "400000" },
+    { name: "latitude", pairName: "longitude", label: "Koordinat Lokasi", type: "coordinates" },
+    { name: "phone", label: "Telepon", type: "text" },
+    { name: "whatsappNumber", label: "WhatsApp", type: "text", placeholder: "08xxxxxxxxxx" },
+    { name: "websiteUrl", label: "Website / Tautan Pemesanan", type: "text", full: true, placeholder: "https://..." },
+    { name: "facilities", label: "Fasilitas (pisahkan dengan koma)", type: "text", full: true, placeholder: "Wi-Fi, Parkir, Sarapan, AC" },
+    { name: "description", label: "Deskripsi", type: "textarea", required: true },
+    { name: "imageUrl", label: "Foto Penginapan", type: "image", scope: "akomodasi" },
+    statusField,
+  ];
+  const toForm = (r: AccommodationRow): FormValues => ({
+    name: r.name,
+    type: r.type,
+    district: r.district,
+    address: r.address,
+    priceFrom: r.priceFrom,
+    priceTo: r.priceTo,
+    latitude: r.latitude,
+    longitude: r.longitude,
+    phone: r.phone,
+    whatsappNumber: r.whatsappNumber,
+    websiteUrl: r.websiteUrl,
+    facilities: r.facilities,
+    description: r.description,
+    imageUrl: r.imageUrl,
+    status: r.status,
+  });
+  return (
+    <EntityManager
+      badge="Manajemen Konten"
+      title="Akomodasi & Penginapan"
+      subtitle="Direktori hotel, homestay, villa, dan penginapan wisata di Purbalingga."
+      addLabel="Tambah Penginapan"
+      entityLabel="penginapan"
+      searchPlaceholder="Cari nama atau kecamatan..."
+      rows={rows}
+      fields={fields}
+      emptyForm={{ name: "", type: "HOMESTAY", district: "", address: "", priceFrom: "", priceTo: "", latitude: "", longitude: "", phone: "", whatsappNumber: "", websiteUrl: "", facilities: "", description: "", imageUrl: "", status: "PUBLISHED" }}
+      toForm={toForm}
+      searchText={(r) => `${r.name} ${r.district} ${r.typeLabel}`}
+      rowName={(r) => r.name}
+      create={createAccommodationAction}
+      update={updateAccommodationAction}
+      remove={deleteAccommodationAction}
+      columns={[
+        { header: "Nama", render: (r) => <span className="font-heading font-semibold text-stone-900">{r.name}</span> },
+        { header: "Jenis", render: (r) => <Badge variant="primary" className="text-[10px]">{r.typeLabel}</Badge> },
+        { header: "Kecamatan", render: (r) => r.district },
+        { header: "Tarif / malam", render: (r) => (r.priceFrom ? `Rp ${Number(r.priceFrom).toLocaleString("id-ID")}${r.priceTo && r.priceTo !== r.priceFrom ? " - " + Number(r.priceTo).toLocaleString("id-ID") : ""}` : "–") },
         { header: "Status", render: (r) => <StatusBadge status={r.status} /> },
       ]}
     />
