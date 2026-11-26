@@ -8,7 +8,7 @@ import {
   Ticket,
   Star,
   Phone,
-  Share2,
+  Navigation,
   CheckCircle2,
   Calendar,
   MessageSquare,
@@ -24,6 +24,10 @@ import { Button } from "@/components/ui/button";
 import { submitReviewAction } from "@/server/actions/content-actions";
 import { CoverImage } from "@/components/ui/cover-image";
 import { WishlistButton } from "@/components/public/wishlist";
+import { ShareButton } from "@/components/public/share-button";
+import { Breadcrumbs } from "@/components/public/breadcrumbs";
+import { MapPreview } from "@/components/public/section/map-preview";
+import { hasCoords } from "@/lib/geo";
 import Image from "next/image";
 
 export function DestinationDetailView({
@@ -34,7 +38,6 @@ export function DestinationDetailView({
   nearby: DestinationDetail[];
 }) {
   const [activeTab, setActiveTab] = React.useState<"info" | "fasilitas" | "ulasan">("info");
-  const [copiedShare, setCopiedShare] = React.useState(false);
 
   // Review Form States
   const [reviewerName, setReviewerName] = React.useState("");
@@ -42,13 +45,10 @@ export function DestinationDetailView({
   const [reviewerComment, setReviewerComment] = React.useState("");
   const [reviewSubmitted, setReviewSubmitted] = React.useState(false);
 
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setCopiedShare(true);
-      setTimeout(() => setCopiedShare(false), 2000);
-    }
-  };
+  const located = hasCoords(destination.latitude, destination.longitude);
+  const directionsHref = located ? `https://www.google.com/maps/dir/?api=1&destination=${destination.latitude},${destination.longitude}` : null;
+  const phone = /^[0-9+\s()-]{6,25}$/.test(destination.contactPhone ?? "") ? destination.contactPhone : null;
+  const telHref = phone ? `tel:${phone.replace(/[^\d+]/g, "")}` : null;
 
   const [reviewPending, startReview] = React.useTransition();
   const [reviewError, setReviewError] = React.useState("");
@@ -76,23 +76,11 @@ export function DestinationDetailView({
   };
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className="space-y-10 pb-28 lg:pb-20">
       {/* 1. TOP BREADCRUMB */}
       <div className="bg-stone-100 border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between text-xs text-stone-600">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <Link href="/" className="hover:text-primary-700">
-              Beranda
-            </Link>
-            <span>/</span>
-            <Link href="/destinasi" className="hover:text-primary-700">
-              Destinasi
-            </Link>
-            <span>/</span>
-            <span className="font-semibold text-primary-950 truncate max-w-[200px] sm:max-w-none">
-              {destination.name}
-            </span>
-          </div>
+          <Breadcrumbs items={[{ label: "Beranda", href: "/" }, { label: "Destinasi", href: "/destinasi" }, { label: destination.name }]} className="text-stone-600" />
 
           <Link href="/destinasi" className="hidden sm:inline-flex items-center gap-1 text-primary-700 hover:underline">
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -115,16 +103,10 @@ export function DestinationDetailView({
               </span>
             </div>
 
-            {/* Share Button */}
-            <WishlistButton slug={destination.slug} name={destination.name} className="!bg-stone-100 !text-stone-600 !border-stone-200 hover:!bg-stone-200" />
-            <button
-              type="button"
-              onClick={handleShare}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-xs font-semibold text-stone-700 shadow-xs cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5 text-stone-600" />
-              <span>{copiedShare ? "Tautan Tersalin!" : "Bagikan"}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <WishlistButton slug={destination.slug} name={destination.name} className="!bg-stone-100 !text-stone-600 !border-stone-200 hover:!bg-stone-200" />
+              <ShareButton title={destination.name} />
+            </div>
           </div>
 
           <h1 className="font-editorial text-3xl sm:text-5xl font-bold text-primary-950">
@@ -172,6 +154,26 @@ export function DestinationDetailView({
             ))}
           </ul>
         )}
+
+        {/* Info cepat: hal yang paling dicari pengunjung, terlihat tanpa menggulir */}
+        <dl className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Info cepat">
+          {[
+            { icon: Ticket, label: "Tiket mulai", value: formatRupiah(Math.min(destination.ticketWeekday ?? 0, destination.ticketWeekend ?? destination.ticketWeekday ?? 0)) },
+            { icon: Clock, label: "Jam buka", value: destination.openingHours || "-" },
+            { icon: Star, label: "Rating", value: destination.reviewCount > 0 ? `${destination.rating} (${destination.reviewCount})` : "Belum ada ulasan" },
+            { icon: MapPin, label: "Kecamatan", value: destination.district },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="rounded-2xl border border-stone-200 bg-white p-4 flex items-start gap-3 shadow-xs">
+              <span className="w-9 h-9 rounded-xl bg-primary-50 text-primary-800 flex items-center justify-center shrink-0">
+                <Icon className="w-4.5 h-4.5" />
+              </span>
+              <div className="min-w-0">
+                <dt className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold">{label}</dt>
+                <dd className="font-heading font-bold text-sm text-primary-900 leading-snug break-words">{value}</dd>
+              </div>
+            </div>
+          ))}
+        </dl>
       </section>
 
       {/* 3. MAIN CONTENT & SIDEBAR */}
@@ -180,7 +182,7 @@ export function DestinationDetailView({
           {/* Left Column (8 cols): Tabs, Description, Facilities, Reviews */}
           <div className="lg:col-span-8 space-y-8" data-reveal>
             {/* Tab Selector */}
-            <div className="flex border-b border-stone-200 gap-6">
+            <div role="tablist" aria-label="Bagian informasi" className="sticky top-20 z-20 -mx-4 px-4 sm:mx-0 sm:px-0 bg-paper/95 backdrop-blur-sm flex border-b border-stone-200 gap-6 overflow-x-auto whitespace-nowrap">
               {[
                 { id: "info", label: "Informasi & Deskripsi" },
                 { id: "fasilitas", label: "Fasilitas & Akses" },
@@ -189,8 +191,12 @@ export function DestinationDetailView({
                 <button
                   key={tab.id}
                   type="button"
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={activeTab === tab.id}
+                  aria-controls="panel-detail"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`pb-3 text-sm font-heading font-semibold transition-colors border-b-2 cursor-pointer ${
+                  className={`pt-3 pb-3 text-sm font-heading font-semibold transition-colors border-b-2 cursor-pointer ${
                     activeTab === tab.id
                       ? "border-secondary-500 text-primary-900"
                       : "border-transparent text-stone-500 hover:text-stone-800"
@@ -201,6 +207,7 @@ export function DestinationDetailView({
               ))}
             </div>
 
+            <div id="panel-detail" role="tabpanel" aria-labelledby={`tab-${activeTab}`} className="space-y-8">
             {/* TAB 1: INFO & DESCRIPTION */}
             {activeTab === "info" && (
               <div className="space-y-6">
@@ -239,6 +246,9 @@ export function DestinationDetailView({
                 <h3 className="font-editorial text-2xl font-bold text-stone-900">
                   Fasilitas Wisata
                 </h3>
+                {destination.facilities.length === 0 && (
+                  <p className="text-sm text-stone-500 rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center">Informasi fasilitas belum tersedia.</p>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {destination.facilities.map((fac, idx) => (
                     <div
@@ -262,6 +272,9 @@ export function DestinationDetailView({
                     Ulasan Pengunjung Terverifikasi
                   </h3>
 
+                  {destination.reviews.length === 0 && (
+                    <p className="text-sm text-stone-500 rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center">Belum ada ulasan. Jadilah yang pertama membagikan pengalamanmu!</p>
+                  )}
                   {destination.reviews.map((rev) => (
                     <div
                       key={rev.id}
@@ -370,6 +383,7 @@ export function DestinationDetailView({
                 </div>
               </div>
             )}
+            </div>
           </div>
 
           {/* Right Column (4 cols): Sticky Info Card, Ticket, Contact */}
@@ -409,7 +423,13 @@ export function DestinationDetailView({
                   <p className="font-semibold text-stone-800">Kontak Reservasi / Info:</p>
                   <p className="text-primary-700 font-bold flex items-center gap-1.5 mt-0.5">
                     <Phone className="w-3.5 h-3.5" />
-                    <span>{destination.contactPhone}</span>
+                    {telHref ? (
+                      <a href={telHref} className="hover:underline">
+                        {destination.contactPhone}
+                      </a>
+                    ) : (
+                      <span>{destination.contactPhone || "-"}</span>
+                    )}
                   </p>
                 </div>
                 <div>
@@ -418,21 +438,44 @@ export function DestinationDetailView({
                 </div>
               </div>
 
-              <div className="pt-2">
-                <a
-                  href={`https://maps.google.com/?q=${destination.latitude},${destination.longitude}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full py-2.5 px-4 rounded-xl bg-primary-800 hover:bg-primary-900 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
-                >
-                  <MapPin className="w-4 h-4 text-secondary-400" />
-                  <span>Petunjuk Arah (Google Maps)</span>
-                </a>
-              </div>
+              {located && (
+                <div className="pt-2 space-y-3">
+                  <MapPreview
+                    points={[{ lat: destination.latitude, lng: destination.longitude, kind: "destinasi", name: destination.name }]}
+                    href={`/peta?destinasi=${encodeURIComponent(destination.slug)}`}
+                    label={`Lihat ${destination.name} di peta`}
+                  />
+                  <a
+                    href={directionsHref ?? "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-primary-800 hover:bg-primary-900 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Navigation className="w-4 h-4 text-secondary-400" />
+                    <span>Petunjuk Arah (Google Maps)</span>
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Aksi cepat di ponsel: selalu terjangkau ibu jari */}
+      {(directionsHref || telHref) && (
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 px-4 py-3 flex gap-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
+          {directionsHref && (
+            <a href={directionsHref} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 rounded-xl bg-primary-800 text-white text-sm font-semibold flex items-center justify-center gap-2">
+              <Navigation className="w-4 h-4 text-secondary-400" /> Petunjuk Arah
+            </a>
+          )}
+          {telHref && (
+            <a href={telHref} className="flex-1 py-3 rounded-xl border border-primary-800 text-primary-800 text-sm font-semibold flex items-center justify-center gap-2">
+              <Phone className="w-4 h-4" /> Hubungi
+            </a>
+          )}
+        </div>
+      )}
 
       {/* 4. NEARBY RECOMMENDATIONS */}
       {nearby.length > 0 && (

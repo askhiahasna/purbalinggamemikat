@@ -21,8 +21,12 @@ const TILE_ATTR = process.env.NEXT_PUBLIC_MAP_ATTRIBUTION || '&copy; <a href="ht
 export function MapPreview({ points, href, label }: { points: PreviewPoint[]; href: string; label: string }) {
   const boxRef = React.useRef<HTMLDivElement>(null);
   const [ready, setReady] = React.useState(false);
+  // Induk sering membuat array `points` baru di tiap render; kunci berdasarkan isinya agar peta tidak dibuat ulang.
+  const signature = JSON.stringify(points);
+  const stablePoints = React.useMemo(() => JSON.parse(signature) as PreviewPoint[], [signature]);
 
   React.useEffect(() => {
+    const points = stablePoints;
     if (points.length === 0) return;
     let cancelled = false;
     let map: Leaflet.Map | null = null;
@@ -50,14 +54,17 @@ export function MapPreview({ points, href, label }: { points: PreviewPoint[]; hr
     })();
     return () => {
       cancelled = true;
-      map?.remove();
+      if (map) {
+        map.stop(); // hentikan animasi/tile yang sedang berjalan sebelum peta dibuang
+        map.remove();
+      }
       setReady(false);
     };
-  }, [points]);
+  }, [stablePoints]);
 
   return (
     <div className="relative h-64 sm:h-80 rounded-2xl overflow-hidden border border-stone-200 shadow-lg bg-gradient-to-br from-primary-50 to-stone-100">
-      {points.length > 0 ? (
+      {stablePoints.length > 0 ? (
         <div ref={boxRef} data-testid="map-preview" className="absolute inset-0 z-0" aria-hidden="true" />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-stone-500 text-xs text-center p-6">
@@ -65,7 +72,7 @@ export function MapPreview({ points, href, label }: { points: PreviewPoint[]; hr
           Titik lokasi belum tersedia. Tambahkan koordinat di CMS agar tampil di peta.
         </div>
       )}
-      {points.length > 0 && !ready && <div className="absolute inset-0 flex items-center justify-center text-xs text-stone-500">Memuat peta...</div>}
+      {stablePoints.length > 0 && !ready && <div className="absolute inset-0 flex items-center justify-center text-xs text-stone-500">Memuat peta...</div>}
       <Link href={href} aria-label={label} className="absolute inset-0 z-[500] focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-primary-800" />
     </div>
   );

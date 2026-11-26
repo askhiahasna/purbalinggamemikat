@@ -1,3 +1,4 @@
+import { cached } from "@/lib/cache";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { DestinationDetail } from "@/types/destination";
@@ -58,7 +59,7 @@ function toDetail(r: Row): DestinationDetail {
 }
 
 /** Destinasi terbit untuk situs publik. */
-export async function getPublishedDestinations(opts?: { featuredOnly?: boolean; take?: number }) {
+async function getPublishedDestinationsUncached(opts?: { featuredOnly?: boolean; take?: number }) {
   const rows = await prisma.destination.findMany({
     where: { status: "PUBLISHED", ...(opts?.featuredOnly ? { isFeatured: true } : {}) },
     include,
@@ -68,7 +69,7 @@ export async function getPublishedDestinations(opts?: { featuredOnly?: boolean; 
   return rows.map(toDetail);
 }
 
-export async function getPublishedDestinationBySlug(slug: string) {
+async function getPublishedDestinationBySlugUncached(slug: string) {
   const row = await prisma.destination.findFirst({ where: { slug, status: "PUBLISHED" }, include });
   return row ? toDetail(row) : null;
 }
@@ -99,10 +100,16 @@ export async function getManagerOptions() {
   });
 }
 
-export async function getDestinationCategories() {
+async function getDestinationCategoriesUncached() {
   return prisma.category.findMany({
     where: { type: "DESTINATION" },
     orderBy: { sortOrder: "asc" },
     select: { slug: true, name: true },
   });
 }
+
+export const getPublishedDestinations = cached(getPublishedDestinationsUncached, "getPublishedDestinations");
+
+export const getPublishedDestinationBySlug = cached(getPublishedDestinationBySlugUncached, "getPublishedDestinationBySlug");
+
+export const getDestinationCategories = cached(getDestinationCategoriesUncached, "getDestinationCategories");

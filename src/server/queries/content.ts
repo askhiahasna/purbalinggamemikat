@@ -1,3 +1,4 @@
+import { cached } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
 import { toWibIso } from "@/lib/seo";
 
@@ -26,7 +27,7 @@ export function readTimeLabel(text: string) {
 
 /* ------------------------------ Publik ------------------------------ */
 
-export async function getPublishedCulinary(take?: number) {
+async function getPublishedCulinaryUncached(take?: number) {
   const rows = await prisma.culinary.findMany({
     where: { status: "PUBLISHED" },
     include: { category: true },
@@ -51,12 +52,13 @@ export async function getPublishedCulinary(take?: number) {
 
 export type PublicCulinary = Awaited<ReturnType<typeof getPublishedCulinary>>[number];
 
-export async function getPublishedCulinaryBySlug(slug: string): Promise<PublicCulinary | null> {
-  const all = await getPublishedCulinary();
+async function getPublishedCulinaryBySlugUncached(slug: string): Promise<PublicCulinary | null> {
+  // Memakai versi tanpa cache: cache bersarang membuat entri slug tidak ikut ter-invalidate.
+  const all = await getPublishedCulinaryUncached();
   return all.find((c) => c.id === slug) ?? null;
 }
 
-export async function getPublishedEvents(take?: number) {
+async function getPublishedEventsUncached(take?: number) {
   const rows = await prisma.event.findMany({
     where: { status: "PUBLISHED" },
     include: { category: true },
@@ -76,7 +78,7 @@ export async function getPublishedEvents(take?: number) {
   }));
 }
 
-export async function getPublishedBusinesses() {
+async function getPublishedBusinessesUncached() {
   const rows = await prisma.business.findMany({
     where: { status: "PUBLISHED" },
     include: { category: true },
@@ -93,7 +95,7 @@ export async function getPublishedBusinesses() {
   }));
 }
 
-export async function getPublishedArticles(take?: number) {
+async function getPublishedArticlesUncached(take?: number) {
   const rows = await prisma.article.findMany({
     where: { status: "PUBLISHED" },
     include: { category: true },
@@ -113,7 +115,7 @@ export async function getPublishedArticles(take?: number) {
 
 /* ------------------------------- Admin ------------------------------ */
 
-export async function getCategoriesByType(type: "CULINARY" | "EVENT" | "UMKM" | "ARTICLE") {
+async function getCategoriesByTypeUncached(type: "CULINARY" | "EVENT" | "UMKM" | "ARTICLE") {
   return prisma.category.findMany({
     where: { type },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -212,7 +214,7 @@ export async function getReviewsForModeration() {
 }
 
 /** Detail berita untuk halaman publik /berita/[slug] (hanya yang terbit). */
-export async function getPublishedArticleBySlug(slug: string) {
+async function getPublishedArticleBySlugUncached(slug: string) {
   const r = await prisma.article.findFirst({
     where: { slug, status: "PUBLISHED" },
     include: { category: true },
@@ -232,3 +234,17 @@ export async function getPublishedArticleBySlug(slug: string) {
     readTime: readTimeLabel(r.content),
   };
 }
+
+export const getPublishedCulinary = cached(getPublishedCulinaryUncached, "getPublishedCulinary");
+
+export const getPublishedCulinaryBySlug = cached(getPublishedCulinaryBySlugUncached, "getPublishedCulinaryBySlug");
+
+export const getPublishedEvents = cached(getPublishedEventsUncached, "getPublishedEvents");
+
+export const getPublishedBusinesses = cached(getPublishedBusinessesUncached, "getPublishedBusinesses");
+
+export const getPublishedArticles = cached(getPublishedArticlesUncached, "getPublishedArticles");
+
+export const getCategoriesByType = cached(getCategoriesByTypeUncached, "getCategoriesByType");
+
+export const getPublishedArticleBySlug = cached(getPublishedArticleBySlugUncached, "getPublishedArticleBySlug");

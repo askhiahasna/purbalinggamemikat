@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/public/brand-mark";
-import { SocialLinks, type SocialMap } from "@/components/public/social-links";
+import { SocialLinks, isHttpUrl, type SocialMap } from "@/components/public/social-links";
 import {
   MapPin,
   Phone,
@@ -67,7 +67,12 @@ export function PublicFooter({
             </p>
 
             {/* Media sosial (dari Pengaturan CMS; disembunyikan bila kosong) */}
-            <SocialLinks links={socials} siteName={siteName} className="pt-1" />
+            <div className="space-y-2 pt-1">
+              {Object.values(socials).some(isHttpUrl) && (
+                <p className="text-xs font-semibold uppercase tracking-wider text-secondary-400 font-heading">Ikuti Kami</p>
+              )}
+              <SocialLinks links={socials} siteName={siteName} />
+            </div>
 
             {/* Newsletter Subscription Card (Matching Mockup) */}
             <div className="bg-primary-900/70 p-4 rounded-2xl border border-primary-800/80 max-w-md space-y-2">

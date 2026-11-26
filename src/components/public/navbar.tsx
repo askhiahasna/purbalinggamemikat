@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, Menu, X, Globe, MapPin, Utensils, Calendar, Building2, Newspaper, ChevronRight } from "lucide-react";
 import { WishlistNavLink } from "@/components/public/wishlist";
 import { BrandMark } from "@/components/public/brand-mark";
-import { SocialLinks, type SocialMap } from "@/components/public/social-links";
+import { SocialLinks, isHttpUrl, type SocialMap } from "@/components/public/social-links";
 import { Button } from "@/components/ui/button";
 
 // Posisi scroll sebagai sumber eksternal (tanpa setState di efek).
@@ -78,15 +78,8 @@ export function PublicNavbar({ siteName, logoUrl, socials }: { siteName: string;
             })}
           </nav>
 
-          {/* Aksi kanan: medsos, tersimpan, cari, bahasa, menu */}
+          {/* Aksi kanan: tersimpan, cari, bahasa, menu (media sosial ada di footer & dasar menu mobile) */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <SocialLinks
-              links={socials}
-              siteName={siteName}
-              className="hidden xl:flex"
-              itemClassName="w-8 h-8 rounded-full text-white hover:bg-white/15 hover:text-secondary-300"
-            />
-
             <WishlistNavLink />
 
             <button
@@ -205,6 +198,7 @@ export function PublicNavbar({ siteName, logoUrl, socials }: { siteName: string;
             </div>
 
             <div className="pt-6 border-t border-primary-900 space-y-3">
+              {Object.values(socials).some(isHttpUrl) && <p className="text-[11px] text-center font-semibold uppercase tracking-wider text-secondary-300">Ikuti Kami</p>}
               <SocialLinks links={socials} siteName={siteName} className="justify-center" />
               <p className="text-[11px] text-center text-stone-400">{siteName} • 2026</p>
             </div>

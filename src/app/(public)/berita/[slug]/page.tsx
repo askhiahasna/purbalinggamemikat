@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { JsonLd } from "@/components/seo/json-ld";
-import { getPublishedArticleBySlug } from "@/server/queries/content";
+import { getPublishedArticleBySlug, getPublishedArticles } from "@/server/queries/content";
+import { Breadcrumbs } from "@/components/public/breadcrumbs";
+import { ShareButton } from "@/components/public/share-button";
+import { CoverImage } from "@/components/ui/cover-image";
 import { articleLd, breadcrumbLd } from "@/lib/structured-data";
 import { pageMetadata } from "@/lib/seo";
 
@@ -33,8 +36,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BeritaDetailPage({ params }: Props) {
   const { slug } = await params;
-  const a = await getPublishedArticleBySlug(slug);
+  const [a, all] = await Promise.all([getPublishedArticleBySlug(slug), getPublishedArticles()]);
   if (!a) notFound();
+  const related = [...all.filter((x) => x.id !== a.slug && x.category === a.category), ...all.filter((x) => x.id !== a.slug && x.category !== a.category)].slice(0, 3);
 
   // Isi berita adalah teks biasa: dipecah per paragraf dan dirender sebagai teks (tanpa HTML).
   const paragraphs = a.content.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
@@ -55,9 +59,7 @@ export default async function BeritaDetailPage({ params }: Props) {
       <header className="relative overflow-hidden bg-primary-950 text-white pt-28 pb-20 sm:pt-32 sm:pb-28">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-teal-950/80 opacity-95" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          <Link href="/berita" className="inline-flex items-center gap-1.5 text-xs text-stone-300 hover:text-white transition-colors">
-            <ArrowLeft className="w-3.5 h-3.5" /> Semua berita
-          </Link>
+          <Breadcrumbs tone="light" items={[{ label: "Beranda", href: "/" }, { label: "Berita", href: "/berita" }, { label: a.title }]} />
           <div>
             <Badge variant="secondary" className="text-[10px]">
               {a.category}
@@ -94,7 +96,43 @@ export default async function BeritaDetailPage({ params }: Props) {
               </p>
             ))}
           </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-5 border-t border-stone-200">
+            <Link href="/berita" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-800 hover:underline">
+              <ArrowLeft className="w-4 h-4" /> Semua berita
+            </Link>
+            <ShareButton title={a.title} />
+          </div>
         </div>
+
+        {related.length > 0 && (
+          <section aria-labelledby="berita-terkait" className="pt-6 space-y-5">
+            <h2 id="berita-terkait" className="font-editorial text-2xl font-bold text-primary-950">
+              Berita Lainnya
+            </h2>
+            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {related.map((r) => (
+                <li key={r.id}>
+                  <Link
+                    href={`/berita/${r.id}`}
+                    className="group h-full bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md hover:border-primary-500 transition-all flex flex-col"
+                  >
+                    <div className="relative h-32 bg-gradient-to-br from-primary-900 to-primary-950 overflow-hidden">
+                      <CoverImage src={r.imageUrl} alt={r.title} sizes="(min-width: 640px) 240px, 100vw" />
+                    </div>
+                    <div className="p-4 space-y-1.5 flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-secondary-600">{r.category}</span>
+                      <h3 className="font-heading font-bold text-sm text-stone-900 group-hover:text-primary-800 leading-snug line-clamp-3">{r.title}</h3>
+                      <p className="text-[11px] text-stone-500">{r.date}</p>
+                    </div>
+                    <span className="px-4 pb-4 text-xs font-semibold text-primary-800 inline-flex items-center gap-1">
+                      Baca <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </article>
   );

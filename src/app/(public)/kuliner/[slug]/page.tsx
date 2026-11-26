@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, MapPin, Navigation, Tag } from "lucide-react";
 import { getPublishedCulinary, getPublishedCulinaryBySlug } from "@/server/queries/content";
 import { getSiteSettings } from "@/server/queries/settings";
+import { Breadcrumbs } from "@/components/public/breadcrumbs";
+import { ShareButton } from "@/components/public/share-button";
 import { SectionHero, splitTitle } from "@/components/public/section/section-hero";
 import { RecommendationSection } from "@/components/public/section/recommendations";
 import { MapPreview } from "@/components/public/section/map-preview";
@@ -60,9 +62,15 @@ export default async function KulinerDetailPage({ params }: Props) {
 
       <section className="bg-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link href="/kuliner" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-800 hover:underline mb-8">
-            <ArrowLeft className="w-4 h-4" /> Semua kuliner
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+            <Breadcrumbs items={[{ label: "Beranda", href: "/" }, { label: "Kuliner", href: "/kuliner" }, { label: item.name }]} />
+            <div className="flex items-center gap-2">
+              <Link href="/kuliner" className="inline-flex items-center gap-1 text-xs font-semibold text-primary-800 hover:underline">
+                <ArrowLeft className="w-3.5 h-3.5" /> Semua kuliner
+              </Link>
+              <ShareButton title={item.name} />
+            </div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-14">
             <article className="lg:col-span-3 space-y-5">
               <h2 className="font-display font-semibold text-3xl sm:text-4xl text-primary-800">Tentang Kuliner Ini</h2>

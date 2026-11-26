@@ -1,3 +1,4 @@
+import { cached } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
 import { PURBALINGGA_DISTRICTS } from "@/lib/constants";
 
@@ -14,7 +15,7 @@ const norm = (s: string) => s.toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\
  * - Kecamatan = jumlah kecamatan (dari 18) yang memiliki minimal satu destinasi/kuliner/UMKM terbit.
  * - Desa Wisata & Penginapan = destinasi terbit berkategori "desa-wisata" + akomodasi terbit.
  */
-export async function getHomeStats(): Promise<HomeStat[]> {
+async function getHomeStatsUncached(): Promise<HomeStat[]> {
   const published = { status: "PUBLISHED" as const };
   const [destinations, culinary, businesses, desaWisata, categories, dDistricts, cDistricts, bDistricts, accommodations, aDistricts] = await Promise.all([
     prisma.destination.count({ where: published }),
@@ -47,3 +48,5 @@ export async function getHomeStats(): Promise<HomeStat[]> {
     { value: desaWisata + accommodations, label: "Desa Wisata & Penginapan", subtext: `${desaWisata} desa wisata • ${accommodations} penginapan` },
   ];
 }
+
+export const getHomeStats = cached(getHomeStatsUncached, "getHomeStats");

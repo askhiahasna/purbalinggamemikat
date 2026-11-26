@@ -1,6 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath as revalidateRoute, updateTag } from "next/cache";
+import { CONTENT_TAG } from "@/lib/cache";
+
+/** Invalidate halaman + cache data publik sekaligus agar perubahan CMS langsung terlihat. */
+const revalidatePath = (path: string, type?: "page" | "layout") => {
+  revalidateRoute(path, type);
+  updateTag(CONTENT_TAG);
+};
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authorize, canManageDestination } from "@/server/auth/dal";

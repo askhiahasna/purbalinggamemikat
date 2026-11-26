@@ -1,7 +1,8 @@
+import { cached } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
 import { ACCOMMODATION_TYPE_LABEL } from "@/lib/validation/content";
 
-export async function getPublishedAccommodations() {
+async function getPublishedAccommodationsUncached() {
   const rows = await prisma.accommodation.findMany({ where: { status: "PUBLISHED" }, orderBy: [{ name: "asc" }] });
   return rows.map((r) => ({
     id: r.slug,
@@ -49,3 +50,5 @@ export async function getAccommodationsForAdmin() {
     status: r.status,
   }));
 }
+
+export const getPublishedAccommodations = cached(getPublishedAccommodationsUncached, "getPublishedAccommodations");

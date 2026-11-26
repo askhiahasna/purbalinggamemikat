@@ -1,10 +1,17 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath as revalidateRoute, updateTag } from "next/cache";
+import { CONTENT_TAG } from "@/lib/cache";
+
+/** Invalidate halaman + cache data publik sekaligus agar perubahan CMS langsung terlihat. */
+const revalidatePath = (path: string, type?: "page" | "layout") => {
+  revalidateRoute(path, type);
+  updateTag(CONTENT_TAG);
+};
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import type { SiteSettings } from "@/lib/data/cms-store";
-import { getSiteSettings, saveSiteSettings } from "@/server/queries/settings";
+import { getSiteSettingsFresh, saveSiteSettings } from "@/server/queries/settings";
 import { DEPRECATED_SETTING_KEYS } from "@/lib/data/cms-store";
 import { authorize, canManageDestination } from "@/server/auth/dal";
 import { removeByUrls, verifyImageUrl } from "@/server/storage/storage";
@@ -94,7 +101,7 @@ export async function updateSiteSettingsAction(input: Partial<SiteSettings>) {
   }
   try {
     // Foto: hanya URL dari bucket kita dengan objek yang benar-benar ada; foto lama dihapus bila diganti.
-    const current = await getSiteSettings();
+    const current = await getSiteSettingsFresh();
     const changed: string[] = [];
     for (const k of IMAGE_KEYS) {
       const next = parsed.data[k];

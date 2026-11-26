@@ -43,7 +43,7 @@ export function SectionHero({
 }) {
   return (
     <section className="relative isolate overflow-hidden bg-primary-800 text-white">
-      <div className="relative flex min-h-[560px] sm:min-h-[660px] flex-col justify-end">
+      <div className="relative flex min-h-[440px] sm:min-h-[520px] flex-col justify-end">
         {image ? (
           <Image src={image} alt="" fill priority sizes="100vw" className="object-cover -z-20" />
         ) : (
@@ -53,9 +53,9 @@ export function SectionHero({
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-black/55 via-black/10 to-black/10" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-black/50 via-transparent to-black/45" />
 
-        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-36 pb-10 sm:pb-14">
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-8 sm:pb-10">
           {eyebrow && <p className="font-heading text-xs font-bold tracking-[0.25em] uppercase text-secondary-300 mb-3">{eyebrow}</p>}
-          <h1 className="font-display font-bold text-6xl sm:text-8xl lg:text-[8.5rem] leading-[0.92] [text-shadow:0_4px_24px_rgb(0_0_0/0.5)]">
+          <h1 className="font-display font-bold text-4xl sm:text-6xl lg:text-7xl leading-[0.98] tracking-wide [text-shadow:0_3px_20px_rgb(0_0_0/0.5)]">
             {title[0]}
             {title[1] && (
               <>
@@ -65,7 +65,7 @@ export function SectionHero({
             )}
           </h1>
           {subtitle && (
-            <p className="font-display font-light text-xl sm:text-3xl leading-snug mt-4 max-w-2xl [text-shadow:0_2px_14px_rgb(0_0_0/0.6)]">{subtitle}</p>
+            <p className="font-display font-light text-base sm:text-xl leading-snug mt-3 max-w-xl [text-shadow:0_2px_14px_rgb(0_0_0/0.6)]">{subtitle}</p>
           )}
         </div>
 
@@ -75,12 +75,12 @@ export function SectionHero({
               <Link
                 key={t.label}
                 href={t.href}
-                className="group relative flex flex-col items-center gap-2 border-r border-b lg:border-b-0 border-white/50 bg-primary-800/75 hover:bg-primary-700/85 backdrop-blur-sm px-3 pt-5 pb-3 text-center transition-colors"
+                className="group relative flex flex-col items-center gap-1.5 border-r border-b lg:border-b-0 border-white/50 bg-primary-800/75 hover:bg-primary-700/85 backdrop-blur-sm px-3 pt-4 pb-2.5 text-center transition-colors"
               >
-                <t.Icon className="w-9 h-9 sm:w-11 sm:h-11 text-white transition-transform duration-300 group-hover:-translate-y-0.5" strokeWidth={1.6} aria-hidden="true" />
-                <span className="font-display font-semibold text-lg sm:text-2xl leading-tight">{t.label}</span>
-                <span className="self-end inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-display uppercase tracking-wide text-white/90 group-hover:text-secondary-300">
-                  Lihat Selengkapnya <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                <t.Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white transition-transform duration-300 group-hover:-translate-y-0.5" strokeWidth={1.6} aria-hidden="true" />
+                <span className="font-display font-semibold text-sm sm:text-lg leading-tight">{t.label}</span>
+                <span className="self-end inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-display uppercase tracking-wide text-white/90 group-hover:text-secondary-300">
+                  Lihat Selengkapnya <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
             ))}
