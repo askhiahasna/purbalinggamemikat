@@ -451,6 +451,40 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
           </div>
         </div>
 
+        {/* Deskripsi kartu "Tiga Pesona Utama" di beranda */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-6">
+          <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
+            <Sliders className="w-5 h-5 text-secondary-500" />
+            <h2 className="font-heading font-bold text-base text-stone-900">Deskripsi &ldquo;Tiga Pesona Utama Purbalingga&rdquo;</h2>
+          </div>
+          <p className="text-[11px] text-stone-500 -mt-3">
+            Teks pada tiga kartu di beranda. Foto kartu diambil otomatis dari destinasi unggulan, kuliner terbaru, dan acara mendatang. Kosongkan untuk memakai teks bawaan.
+          </p>
+          <div className="space-y-4">
+            {(
+              [
+                ["pillar1Desc", "01 · Wisata"],
+                ["pillar2Desc", "02 · Kuliner & Oleh-Oleh"],
+                ["pillar3Desc", "03 · Acara Mendatang"],
+              ] as const
+            ).map(([key, label]) => (
+              <div key={key}>
+                <label htmlFor={`${key}-input`} className="block text-xs font-semibold text-stone-700 mb-1">
+                  {label} <span className="font-normal text-stone-400">({settings[key].length}/400)</span>
+                </label>
+                <textarea
+                  id={`${key}-input`}
+                  rows={3}
+                  maxLength={400}
+                  value={settings[key]}
+                  onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-none focus:border-primary-800"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* 5. KONTAK & TIC */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-6">
           <div className="flex items-center gap-2 border-b border-stone-100 pb-3">

@@ -122,6 +122,8 @@ export const destinationSchema = z
   latitude: num(-90, 90, "Latitude"),
   longitude: num(-180, 180, "Longitude"),
   managerId: z.string().trim().nullish().transform((v) => v || null),
+  /** Destinasi Unggulan (tampil di carousel hero beranda). undefined = jangan ubah. */
+  isFeatured: z.boolean().optional(),
   })
   .superRefine((v, ctx) => {
     if ((v.latitude === null) !== (v.longitude === null)) {

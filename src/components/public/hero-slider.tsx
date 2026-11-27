@@ -42,6 +42,51 @@ export function HeroSlider({ settings, destinations }: { settings: SiteSettings;
   const bgSrc = settings.heroBgUrl || HERO_BG_FALLBACK;
   const canSlide = count > perView;
 
+  // Geser sentuh: kartu mengikuti jari, lepas melewati ambang -> pindah slide. Scroll vertikal tetap normal (touch-action: pan-y).
+  const [dragX, setDragX] = React.useState(0);
+  const [dragging, setDragging] = React.useState(false);
+  const gesture = React.useRef<{ x: number; y: number; id: number; horizontal: boolean | null; moved: boolean } | null>(null);
+  const suppressClick = React.useRef(false);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!canSlide || e.pointerType === "mouse") return; // mouse memakai tombol panah
+    gesture.current = { x: e.clientX, y: e.clientY, id: e.pointerId, horizontal: null, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const g = gesture.current;
+    if (!g || g.id !== e.pointerId) return;
+    const dx = e.clientX - g.x;
+    const dy = e.clientY - g.y;
+    if (g.horizontal === null && Math.hypot(dx, dy) > 8) {
+      g.horizontal = Math.abs(dx) > Math.abs(dy);
+      if (g.horizontal) {
+        e.currentTarget.setPointerCapture(e.pointerId);
+        setDragging(true);
+      }
+    }
+    if (g.horizontal) {
+      g.moved = true;
+      setDragX(dx);
+    }
+  };
+  const endGesture = (e: React.PointerEvent<HTMLDivElement>) => {
+    const g = gesture.current;
+    if (!g || g.id !== e.pointerId) return;
+    gesture.current = null;
+    if (g.horizontal) {
+      const width = e.currentTarget.getBoundingClientRect().width;
+      const threshold = Math.min(80, width * 0.15);
+      if (e.type === "pointerup") {
+        if (dragX <= -threshold) next();
+        else if (dragX >= threshold) prev();
+      }
+      suppressClick.current = true; // jangan ikut menekan tautan kartu setelah menggeser
+      window.setTimeout(() => (suppressClick.current = false), 0);
+    }
+    setDragging(false);
+    setDragX(0);
+  };
+
   return (
     <section className="relative isolate overflow-hidden bg-primary-800 text-white min-h-[640px] lg:min-h-[760px] flex items-center">
       {/* Foto latar: tampil jelas di atas, memudar ke hijau solid #174C3C di bawah (menyatu dengan bagian Sambutan) */}
@@ -126,11 +171,26 @@ export function HeroSlider({ settings, destinations }: { settings: SiteSettings;
                 Destinasi unggulan akan tampil di sini setelah ditambahkan melalui CMS.
               </div>
             ) : (
-              <div className="overflow-hidden -mx-2" role="region" aria-roledescription="carousel" aria-label="Destinasi unggulan">
+              <div
+                className="overflow-hidden -mx-2 touch-pan-y"
+                role="region"
+                aria-roledescription="carousel"
+                aria-label="Destinasi unggulan"
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={endGesture}
+                onPointerCancel={endGesture}
+                onClickCapture={(e) => {
+                  if (suppressClick.current) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+              >
                 <ul
                   data-testid="hero-track"
-                  className="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none [--per:1] sm:[--per:2]"
-                  style={{ transform: `translateX(calc(${current} * -100% / var(--per)))` }}
+                  className={`flex ${dragging ? "" : "transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"} [--per:1] sm:[--per:2]`}
+                  style={{ transform: `translateX(calc(${current} * -100% / var(--per) + ${dragX}px))` }}
                 >
                   {destinations.map((item, i) => {
                     const visible = i >= current && i < current + perView;

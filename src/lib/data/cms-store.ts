@@ -38,6 +38,10 @@ export interface SiteSettings {
   heroPageAkomodasi: string;
   heroPageUmkm: string;
   heroPageBerita: string;
+  /** Deskripsi kartu "Tiga Pesona Utama" di beranda (dapat diedit di CMS). */
+  pillar1Desc: string;
+  pillar2Desc: string;
+  pillar3Desc: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -84,6 +88,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroPageAkomodasi: "",
   heroPageUmkm: "",
   heroPageBerita: "",
+  pillar1Desc:
+    "Keindahan air terjun lereng Gunung Slamet, gua vulkanik eksotis Goa Lawa, kesejukan agrowisata stroberi Serang, dan kesegaran mata air alami Owabong.",
+  pillar2Desc:
+    "Kelezatan khas Mendoan hangat bumbu kecap cabai, gurihnya Soto Kriyik berpadu lontong, Sate Blater bumbu rempah, hingga Nopia dan Gula Kelapa murni.",
+  pillar3Desc:
+    "Rangkaian agenda akbar tahunan: Festival Gunung Slamet (FGS), prosesi sakral Grebeg Onje, pameran batu akik Sungai Klawing, dan pentas 1.000 Ebeg Banyumasan.",
 };
 
 /** Kunci lama yang sudah tidak dipakai (dibersihkan saat pengaturan disimpan). */

@@ -1,12 +1,13 @@
 import { getSiteSettings } from "@/server/queries/settings";
 import { getPublishedDestinations } from "@/server/queries/destinations";
-import { getPublishedCulinary } from "@/server/queries/content";
+import { getPublishedBusinesses, getPublishedCulinary, getPublishedEvents } from "@/server/queries/content";
 import { getHomeStats } from "@/server/queries/stats";
 import type { HeroDestination } from "@/components/public/hero-slider";
 import { HeroSlider } from "@/components/public/hero-slider";
 import { MarqueeBanner } from "@/components/public/marquee-banner";
 import { AboutSection } from "@/components/public/about-section";
-import { InteractivePillars } from "@/components/public/interactive-pillars";
+import { InteractivePillars, type PillarContent } from "@/components/public/interactive-pillars";
+import { DEFAULT_SETTINGS } from "@/lib/data/cms-store";
 import { HighlightDestinasi } from "@/components/public/highlight-destinasi";
 import { HighlightKuliner } from "@/components/public/highlight-kuliner";
 import { HighlightEvent } from "@/components/public/highlight-event";
@@ -22,16 +23,47 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = pageMetadata({ description: DEFAULT_DESCRIPTION, path: "/" });
 
+type Settings = Awaited<ReturnType<typeof getSiteSettings>>;
+
+/** Foto & deskripsi "Tiga Pesona Utama": item unggulan/terbaru per kategori (data urut lama -> baru, jadi terbaru = paling akhir). */
+function buildPillarContent(
+  settings: Settings,
+  destinations: Awaited<ReturnType<typeof getPublishedDestinations>>,
+  culinary: Awaited<ReturnType<typeof getPublishedCulinary>>,
+  events: Awaited<ReturnType<typeof getPublishedEvents>>,
+  businesses: Awaited<ReturnType<typeof getPublishedBusinesses>>
+): [PillarContent, PillarContent, PillarContent] {
+  const latest = <T,>(list: T[], pick: (x: T) => string | null) => [...list].reverse().find((x) => pick(x)) ?? null;
+  const featuredDest = destinations.find((d) => d.isFeatured && d.coverUrl) ?? latest(destinations, (d) => d.coverUrl);
+  const latestCulinary = latest(culinary, (c) => c.imageUrl);
+  const now = Date.now();
+  const upcomingEvent = events.find((e) => e.imageUrl && Date.parse(e.endISO ?? e.startISO) >= now) ?? latest(events, (e) => e.imageUrl);
+  const latestBusiness = latest(businesses, (b) => b.imageUrl); // cadangan bila belum ada foto acara
+  return [
+    { image: featuredDest?.coverUrl ?? null, imageAlt: featuredDest?.name ?? "Wisata Purbalingga", description: settings.pillar1Desc || DEFAULT_SETTINGS.pillar1Desc },
+    { image: latestCulinary?.imageUrl ?? null, imageAlt: latestCulinary?.name ?? "Kuliner Purbalingga", description: settings.pillar2Desc || DEFAULT_SETTINGS.pillar2Desc },
+    {
+      image: upcomingEvent?.imageUrl ?? latestBusiness?.imageUrl ?? null,
+      imageAlt: upcomingEvent?.title ?? latestBusiness?.name ?? "Acara Purbalingga",
+      description: settings.pillar3Desc || DEFAULT_SETTINGS.pillar3Desc,
+    },
+  ];
+}
+
 export default async function HomePage() {
-  const [settings, destinations, culinary, stats] = await Promise.all([
+  const [settings, destinations, culinary, stats, events, businesses] = await Promise.all([
     getSiteSettings(),
     getPublishedDestinations(),
     getPublishedCulinary(),
     getHomeStats(),
+    getPublishedEvents(),
+    getPublishedBusinesses(),
   ]);
 
-  // Carousel hero: destinasi unggulan (isFeatured) lebih dulu, lalu sisanya; maks. 6.
-  const heroDestinations: HeroDestination[] = destinations.slice(0, 6).map((d) => ({
+  // Carousel hero: hanya destinasi yang ditandai "Unggulan" di CMS (maks. 6). Bila belum ada yang ditandai,
+  // tampilkan destinasi terbit agar hero tidak kosong.
+  const featuredList = destinations.filter((d) => d.isFeatured);
+  const heroDestinations: HeroDestination[] = (featuredList.length > 0 ? featuredList : destinations).slice(0, 6).map((d) => ({
     id: d.id,
     slug: d.slug,
     name: d.name,
@@ -55,6 +87,8 @@ export default async function HomePage() {
     (uploaded, i) => uploaded || semantic[i] || (pool.length ? pool[i % pool.length] : null)
   );
 
+  const pillarContent = buildPillarContent(settings, destinations, culinary, events, businesses);
+
   return (
     <div className="flex flex-col w-full">
       <JsonLd data={websiteLd(settings.logoUrl)} />
@@ -68,7 +102,7 @@ export default async function HomePage() {
       <MarqueeBanner />
 
       {/* 4. THREE INTERACTIVE PILLARS: 01 WISATA, 02 KULINER, 03 ACARA MENDATANG */}
-      <InteractivePillars />
+      <InteractivePillars content={pillarContent} />
 
       {/* 4. HIGHLIGHT 01: WISATA PILIHAN */}
       <HighlightDestinasi />

@@ -20,7 +20,7 @@ export default async function PublicLayout({
     <div className="flex min-h-screen flex-col bg-paper text-slate-dark">
       <PublicNavbar siteName={s.siteName || "Purbalingga Memikat"} logoUrl={s.logoUrl || undefined} socials={socials} />
       <main className="flex-1">{children}</main>
-      <PublicFooter siteName={s.siteName || "Purbalingga Memikat"} tagline={s.tagline} logoUrl={s.logoUrl || undefined} socials={socials} />
+      <PublicFooter siteName={s.siteName || "Purbalingga Memikat"} tagline={s.tagline} logoUrl={s.logoUrl || undefined} socials={socials} contact={{ address: s.contactAddress, phone: s.contactPhone, email: s.contactEmail }} />
       <ScrollReveal />
     </div>
   );

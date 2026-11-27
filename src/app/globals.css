@@ -77,7 +77,7 @@ body {
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee-scroll 32s linear infinite;
+  animation: marquee-scroll 64s linear infinite; /* 2x lebih lambat dari sebelumnya (32s) */
 }
 
 .animate-marquee:hover {

@@ -2,13 +2,13 @@
 
 import { createHash } from "crypto";
 import { headers } from "next/headers";
-import { revalidatePath as revalidateRoute, updateTag } from "next/cache";
-import { CONTENT_TAG } from "@/lib/cache";
+import { revalidatePath as revalidateRoute } from "next/cache";
+import { invalidateContent } from "@/lib/cache";
 
 /** Invalidate halaman + cache data publik sekaligus agar perubahan CMS langsung terlihat. */
 const revalidatePath = (path: string, type?: "page" | "layout") => {
   revalidateRoute(path, type);
-  updateTag(CONTENT_TAG);
+  invalidateContent();
 };
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";

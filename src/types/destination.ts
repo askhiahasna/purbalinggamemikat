@@ -35,6 +35,7 @@ export interface DestinationDetail {
   rating: number;
   reviewCount: number;
   facilities: string[];
+  isFeatured: boolean;
   coverGradient: string;
   accentColor: string;
   reviews: DestinationReview[];

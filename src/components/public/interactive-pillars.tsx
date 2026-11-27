@@ -2,9 +2,65 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Mountain, Utensils, Calendar } from "lucide-react";
 
-export function InteractivePillars() {
+export interface PillarContent {
+  /** Foto kartu (dari konten unggulan/terbaru kategori terkait); null = ikon sebagai pengganti. */
+  image: string | null;
+  /** Nama item yang difoto (untuk alt). */
+  imageAlt: string;
+  /** Deskripsi dari Pengaturan CMS. */
+  description: string;
+}
+
+/** Bingkai kapsul di tengah kartu: foto dinamis, atau ikon bila belum ada foto. */
+function PillarFrame({
+  image,
+  alt,
+  icon: Icon,
+  badge,
+  active,
+  accent,
+  className,
+  sizes,
+}: {
+  image: string | null;
+  alt: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge: string;
+  active: boolean;
+  accent: string;
+  className: string;
+  sizes: string;
+}) {
+  return (
+    <div
+      className={`relative overflow-hidden border-2 transition-all duration-500 shadow-md flex flex-col items-center justify-center text-center p-3 ${className} ${
+        active ? "border-secondary-400 bg-gradient-to-b " + accent : "border-stone-200 bg-stone-100"
+      } ${image && !active ? "opacity-80 saturate-75" : !image && !active ? "opacity-60" : ""}`}
+    >
+      {image ? (
+        <>
+          <Image src={image} alt={alt} fill sizes={sizes} className="object-cover" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
+          <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-black/55 text-secondary-300 backdrop-blur-xs whitespace-nowrap">
+            {badge}
+          </span>
+        </>
+      ) : (
+        <>
+          <Icon className={`w-10 h-10 mb-2 ${active ? "text-white" : "text-stone-400"}`} />
+          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${active ? "bg-black/40 text-secondary-300" : "bg-stone-200 text-stone-600"}`}>
+            {badge}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function InteractivePillars({ content }: { content: [PillarContent, PillarContent, PillarContent] }) {
   const [activeTab, setActiveTab] = React.useState<number>(0);
 
   const pillars = [
@@ -13,8 +69,6 @@ export function InteractivePillars() {
       number: "01",
       title: "WISATA",
       subtitle: "Pesona Alam & Rekreasi",
-      description:
-        "Keindahan air terjun lereng Gunung Slamet, gua vulkanik eksotis Goa Lawa, kesejukan agrowisata stroberi Serang, dan kesegaran mata air alami Owabong.",
       href: "/destinasi",
       badge: "Alam & Rekreasi",
       icon: Mountain,
@@ -25,8 +79,6 @@ export function InteractivePillars() {
       number: "02",
       title: "KULINER & OLEH-OLEH",
       subtitle: "Cita Rasa Otentik",
-      description:
-        "Kelezatan khas Mendoan hangat bumbu kecap cabai, gurihnya Soto Kriyik berpadu lontong, Sate Blater bumbu rempah, hingga Nopia dan Gula Kelapa murni.",
       href: "/kuliner",
       badge: "Cita Rasa Lokal",
       icon: Utensils,
@@ -37,8 +89,6 @@ export function InteractivePillars() {
       number: "03",
       title: "ACARA MENDATANG",
       subtitle: "Festival & Tradisi Budaya",
-      description:
-        "Rangkaian agenda akbar tahunan: Festival Gunung Slamet (FGS), prosesi sakral Grebeg Onje, pameran batu akik Sungai Klawing, dan pentas 1.000 Ebeg Banyumasan.",
       href: "/budaya-event",
       badge: "Agenda Budaya",
       icon: Calendar,
@@ -108,24 +158,18 @@ export function InteractivePillars() {
                   </h3>
                 </div>
 
-                {/* Oval/Capsule Frame from Mockup */}
+                {/* Bingkai kapsul: foto dinamis dari item unggulan/terbaru kategori ini */}
                 <div className="my-6 flex justify-center items-center">
-                  <div
-                    className={`relative w-36 h-48 rounded-[60px] overflow-hidden border-2 transition-all duration-500 shadow-md flex flex-col items-center justify-center text-center p-3 ${
-                      isActive
-                        ? "border-secondary-400 bg-gradient-to-b " + pillar.accentColor
-                        : "border-stone-200 bg-stone-100 opacity-60"
-                    }`}
-                  >
-                    <Icon className={`w-10 h-10 mb-2 ${isActive ? "text-white" : "text-stone-400"}`} />
-                    <span
-                      className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
-                        isActive ? "bg-black/40 text-secondary-300" : "bg-stone-200 text-stone-600"
-                      }`}
-                    >
-                      {pillar.badge}
-                    </span>
-                  </div>
+                  <PillarFrame
+                    image={content[idx].image}
+                    alt={content[idx].imageAlt}
+                    icon={Icon}
+                    badge={pillar.badge}
+                    active={isActive}
+                    accent={pillar.accentColor}
+                    className="w-40 h-52 rounded-[64px]"
+                    sizes="160px"
+                  />
                 </div>
 
                 {/* Description & Link */}
@@ -135,7 +179,7 @@ export function InteractivePillars() {
                       isActive ? "text-stone-200" : "text-stone-600"
                     }`}
                   >
-                    {pillar.description}
+                    {content[idx].description}
                   </p>
 
                   <Link
@@ -194,18 +238,20 @@ export function InteractivePillars() {
                 </div>
 
                 <div className="flex justify-center">
-                  <div
-                    className={`w-36 h-44 rounded-[50px] border-2 border-secondary-400 bg-gradient-to-b ${current.accentColor} flex flex-col items-center justify-center p-3 text-center shadow-lg`}
-                  >
-                    <Icon className="w-10 h-10 text-white mb-2" />
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-black/40 text-secondary-300">
-                      {current.badge}
-                    </span>
-                  </div>
+                  <PillarFrame
+                    image={content[activeTab].image}
+                    alt={content[activeTab].imageAlt}
+                    icon={Icon}
+                    badge={current.badge}
+                    active
+                    accent={current.accentColor}
+                    className="w-40 h-52 rounded-[56px]"
+                    sizes="160px"
+                  />
                 </div>
 
                 <p className="text-xs text-stone-200 leading-relaxed text-center font-body">
-                  {current.description}
+                  {content[activeTab].description}
                 </p>
 
                 <Link

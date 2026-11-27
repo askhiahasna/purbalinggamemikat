@@ -44,6 +44,7 @@ function toDetail(r: Row): DestinationDetail {
     rating: Math.round(avg * 10) / 10,
     reviewCount: count,
     facilities: r.facilities.map((f) => f.facility.name),
+    isFeatured: r.isFeatured,
     coverGradient: r.coverGradient ?? "from-primary-900 to-primary-950",
     accentColor: r.accentColor ?? "teal",
     images: r.images.map((i) => ({ id: i.id, url: i.url, caption: i.caption ?? "", isCover: i.isCover })),

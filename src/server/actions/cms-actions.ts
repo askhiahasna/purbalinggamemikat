@@ -1,12 +1,12 @@
 "use server";
 
-import { revalidatePath as revalidateRoute, updateTag } from "next/cache";
-import { CONTENT_TAG } from "@/lib/cache";
+import { revalidatePath as revalidateRoute } from "next/cache";
+import { invalidateContent } from "@/lib/cache";
 
 /** Invalidate halaman + cache data publik sekaligus agar perubahan CMS langsung terlihat. */
 const revalidatePath = (path: string, type?: "page" | "layout") => {
   revalidateRoute(path, type);
-  updateTag(CONTENT_TAG);
+  invalidateContent();
 };
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -74,6 +74,9 @@ const settingsSchema = z.object({
   heroPageAkomodasi: z.string().trim().max(500),
   heroPageUmkm: z.string().trim().max(500),
   heroPageBerita: z.string().trim().max(500),
+  pillar1Desc: z.string().trim().max(400),
+  pillar2Desc: z.string().trim().max(400),
+  pillar3Desc: z.string().trim().max(400),
 });
 
 const IMAGE_KEYS = [
@@ -203,6 +206,7 @@ export async function createDestinationAction(input: DestinationInput): Promise<
         latitude: d.latitude,
         longitude: d.longitude,
         status: d.status,
+        isFeatured: d.isFeatured ?? false,
       },
     });
     revalidateDestinations(slug);
@@ -254,8 +258,9 @@ export async function updateDestinationAction(id: string, input: DestinationInpu
         openingHours: d.openingHours || null,
         latitude: d.latitude,
         longitude: d.longitude,
-        // Pengelola tidak boleh mengubah status publikasi.
+        // Pengelola tidak boleh mengubah status publikasi maupun penempatan di beranda (unggulan).
         ...(isManager ? {} : { status: d.status }),
+        ...(isManager || d.isFeatured === undefined ? {} : { isFeatured: d.isFeatured }),
       },
       select: { slug: true },
     });
@@ -264,6 +269,21 @@ export async function updateDestinationAction(id: string, input: DestinationInpu
   } catch (err) {
     console.error(err);
     return { success: false, error: "Gagal memperbarui destinasi." };
+  }
+}
+
+/** Saklar cepat "Destinasi Unggulan" (carousel hero beranda). Pengelola destinasi tidak berwenang. */
+export async function setDestinationFeaturedAction(id: string, featured: boolean): Promise<ActionResult> {
+  const auth = await authorize(CONTENT_ROLES);
+  if (!auth.ok) return { success: false, error: auth.error };
+  if (typeof id !== "string" || typeof featured !== "boolean") return { success: false, error: "Data tidak valid." };
+  try {
+    const updated = await prisma.destination.update({ where: { id }, data: { isFeatured: featured }, select: { slug: true } });
+    revalidateDestinations(updated.slug);
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { success: false, error: "Gagal memperbarui destinasi unggulan." };
   }
 }
 

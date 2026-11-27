@@ -108,21 +108,21 @@ const destinasi: EntityIO = {
   columns: [
     { key: "slug" }, { key: "nama", required: true }, { key: "kategori", required: true }, { key: "kecamatan", required: true },
     { key: "alamat" }, { key: "ringkasan" }, { key: "deskripsi" }, { key: "harga_hari_kerja" }, { key: "harga_akhir_pekan" },
-    { key: "jam_buka" }, { key: "latitude" }, { key: "longitude" }, { key: "status" },
+    { key: "jam_buka" }, { key: "latitude" }, { key: "longitude" }, { key: "status" }, { key: "unggulan" },
   ],
-  example: { slug: "", nama: "Curug Contoh", kategori: "Wisata Air", kecamatan: "Karangreja", alamat: "Desa Contoh", ringkasan: "Curug sejuk di lereng Slamet", deskripsi: "Deskripsi lengkap destinasi.", harga_hari_kerja: "10000", harga_akhir_pekan: "15000", jam_buka: "08.00 - 17.00 WIB", latitude: "-7.2500", longitude: "109.2000", status: "DRAFT" },
+  example: { slug: "", nama: "Curug Contoh", kategori: "Wisata Air", kecamatan: "Karangreja", alamat: "Desa Contoh", ringkasan: "Curug sejuk di lereng Slamet", deskripsi: "Deskripsi lengkap destinasi.", harga_hari_kerja: "10000", harga_akhir_pekan: "15000", jam_buka: "08.00 - 17.00 WIB", latitude: "-7.2500", longitude: "109.2000", status: "DRAFT", unggulan: "tidak" },
   async exportRows() {
     const rows = await prisma.destination.findMany({ include: { category: true }, orderBy: { createdAt: "asc" } });
     return rows.map((r) => ({
       slug: r.slug, nama: r.name, kategori: r.category.name, kecamatan: r.district, alamat: r.address, ringkasan: r.summary,
       deskripsi: r.description, harga_hari_kerja: r.ticketPriceWeekday ?? 0, harga_akhir_pekan: r.ticketPriceWeekend ?? 0,
-      jam_buka: r.openingHours ?? "", latitude: r.latitude, longitude: r.longitude, status: r.status,
+      jam_buka: r.openingHours ?? "", latitude: r.latitude, longitude: r.longitude, status: r.status, unggulan: r.isFeatured ? "ya" : "tidak",
     }));
   },
   importer: {
     schema: destinationSchema,
     async prepare(row) {
-      const existing = row.slug ? await prisma.destination.findUnique({ where: { slug: row.slug }, select: { id: true, managerId: true, status: true, latitude: true, longitude: true } }) : null;
+      const existing = row.slug ? await prisma.destination.findUnique({ where: { slug: row.slug }, select: { id: true, managerId: true, status: true, latitude: true, longitude: true, isFeatured: true } }) : null;
       const cat = findCategory(await categories("DESTINATION"), row.kategori);
       if (!cat) return { error: "Kategori wajib diisi" };
       if (isErr(cat)) return cat;
@@ -136,6 +136,8 @@ const destinasi: EntityIO = {
           ticketPriceWeekday: row.harga_hari_kerja || "0", ticketPriceWeekend: row.harga_akhir_pekan || "0",
           openingHours: row.jam_buka || undefined, status: parseStatus(row.status, existing?.status ?? "DRAFT"),
           managerId: existing?.managerId ?? null, // jangan menghapus penugasan pengelola saat impor
+          // Kolom "unggulan" kosong = pertahankan nilai lama.
+          isFeatured: row.unggulan ? /^(ya|y|true|1)$/i.test(row.unggulan.trim()) : (existing?.isFeatured ?? false),
           // Sel koordinat kosong pada baris yang diperbarui = pertahankan koordinat lama (tidak menghapus).
           latitude: row.latitude || row.longitude ? row.latitude : (existing?.latitude ?? null),
           longitude: row.latitude || row.longitude ? row.longitude : (existing?.longitude ?? null),

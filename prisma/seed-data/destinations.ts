@@ -2,7 +2,7 @@
 import type { DestinationDetail } from "../../src/types/destination";
 
 // Data seed tidak memuat foto (galeri diunggah lewat CMS).
-type SeedDestination = Omit<DestinationDetail, "images" | "coverUrl">;
+type SeedDestination = Omit<DestinationDetail, "images" | "coverUrl" | "isFeatured">;
 
 export const DESTINATIONS_DATA: SeedDestination[] = [
   {

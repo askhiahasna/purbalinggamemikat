@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { UserCheck, Award, MapPin, Landmark } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import { SiteSettings } from "@/lib/data/cms-store";
 
 /** Sambutan Bupati & Wakil Bupati — langsung setelah Hero; latar hijau solid #174C3C menyatu dengan dasar Hero. */
@@ -22,38 +22,24 @@ export function AboutSection({ settings }: { settings: SiteSettings }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-10 items-center" data-reveal>
           {/* Kiri: sambutan */}
           <div className="lg:col-span-7 space-y-6 text-white font-body text-sm sm:text-base leading-relaxed">
-            <blockquote className="border-l-4 border-secondary-500 pl-4 sm:pl-5">
-              <p className="font-editorial text-xl sm:text-2xl text-white leading-snug">&ldquo;{settings.sekilasQuote}&rdquo;</p>
-              <footer className="mt-2 text-xs sm:text-sm text-secondary-200 font-semibold font-heading">
-                {settings.leader1Name}, {settings.leader1Title} &nbsp;•&nbsp; {settings.leader2Name}, {settings.leader2Title}
+            <blockquote className="relative rounded-2xl border border-secondary-500/40 bg-gradient-to-br from-secondary-500/15 to-transparent pl-5 pr-5 py-5 sm:pl-7 sm:pr-7 border-l-4 border-l-secondary-500">
+              <span aria-hidden className="absolute -top-3 left-4 font-editorial text-6xl leading-none text-secondary-500 select-none">&ldquo;</span>
+              <p className="font-editorial text-xl sm:text-2xl text-secondary-300 leading-snug pt-3">{settings.sekilasQuote}</p>
+              <footer className="mt-3 text-xs sm:text-sm text-white/90 font-semibold font-heading">
+                <span className="text-secondary-400">{settings.leader1Name}</span>, {settings.leader1Title} &nbsp;•&nbsp; <span className="text-secondary-400">{settings.leader2Name}</span>, {settings.leader2Title}
               </footer>
             </blockquote>
 
             <p className="text-stone-100">
-              <strong className="text-white font-heading font-semibold text-base sm:text-lg block mb-1">Kabupaten Purbalingga</strong>
-              merupakan daerah yang kaya akan potensi alam, pesona budaya, dan tradisi luhur yang terletak strategis di <strong className="text-white">Kawasan Kaki Gunung Slamet</strong>, Jawa Tengah bagian barat daya.
+              <strong className="text-secondary-400 font-heading font-semibold text-base sm:text-lg block mb-1">Kabupaten Purbalingga</strong>
+              merupakan daerah yang kaya akan potensi alam, pesona budaya, dan tradisi luhur yang terletak strategis di <strong className="text-secondary-300 font-semibold">Kawasan Kaki Gunung Slamet</strong>, Jawa Tengah bagian barat daya.
             </p>
             <p className="text-stone-100">
               Dianugerahi hawa sejuk pegunungan, ratusan mata air jernih, bentang perbukitan asri, serta aliran legendaris Sungai Klawing yang tersohor, Purbalingga menjadi rumah bagi ragam destinasi unggulan: mulai dari agrowisata dataran tinggi, gua lava purba, hingga wahana rekreasi air ramah keluarga.
             </p>
             <p className="text-stone-100">
-              Sebagai <em>Bumi Perwira</em>—tempat lahirnya Pahlawan Nasional Jenderal Besar Soedirman—masyarakat Purbalingga memegang teguh nilai gotong royong, integritas, keramahan bersahaja khas Banyumasan, dan daya cipta UMKM yang menggerakkan ekonomi kerakyatan.
+              Sebagai <em className="text-secondary-300 font-semibold not-italic">Bumi Perwira</em>—tempat lahirnya Pahlawan Nasional <strong className="text-secondary-300 font-semibold">Jenderal Besar Soedirman</strong>—masyarakat Purbalingga memegang teguh nilai gotong royong, integritas, keramahan bersahaja khas Banyumasan, dan daya cipta UMKM yang menggerakkan ekonomi kerakyatan.
             </p>
-
-            <div className="pt-2 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs font-semibold">
-              <div className="p-3 rounded-lg bg-primary-900 border border-primary-700/60 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-secondary-400 shrink-0" />
-                <span>18 Kecamatan</span>
-              </div>
-              <div className="p-3 rounded-lg bg-primary-900 border border-primary-700/60 flex items-center gap-2">
-                <Landmark className="w-4 h-4 text-secondary-400 shrink-0" />
-                <span>Bumi Perwira</span>
-              </div>
-              <div className="p-3 rounded-lg bg-primary-900 border border-primary-700/60 flex items-center gap-2 col-span-2 sm:col-span-1">
-                <Award className="w-4 h-4 text-secondary-400 shrink-0" />
-                <span>Kearifan Lokal</span>
-              </div>
-            </div>
           </div>
 
           {/* Kanan: satu foto gabungan + label nama (bubble asimetris, mengambang halus) */}

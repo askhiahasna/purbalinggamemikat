@@ -14,6 +14,7 @@ import {
   AlertCircle,
   X,
   Images,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ import {
   createDestinationAction,
   updateDestinationAction,
   deleteDestinationAction,
+  setDestinationFeaturedAction,
   type DestinationInput,
 } from "@/server/actions/cms-actions";
 
@@ -47,6 +49,7 @@ const EMPTY_FORM = (categorySlug: string): DestinationInput => ({
   latitude: "",
   longitude: "",
   status: "PUBLISHED",
+  isFeatured: false,
 });
 
 export function DestinationManager({
@@ -108,8 +111,16 @@ export function DestinationManager({
       managerId: d.managerId,
       latitude: d.coordLat,
       longitude: d.coordLng,
+      isFeatured: d.isFeatured,
     });
     setIsModalOpen(true);
+  };
+
+  const toggleFeatured = (d: AdminDestination) => {
+    startTransition(async () => {
+      const res = await setDestinationFeaturedAction(d.id, !d.isFeatured);
+      notify(res.success, res.success ? (d.isFeatured ? `"${d.name}" dilepas dari Destinasi Unggulan.` : `"${d.name}" dijadikan Destinasi Unggulan (tampil di hero beranda).`) : res.error);
+    });
   };
 
   const handleDelete = (id: string, name: string) => {
@@ -223,6 +234,7 @@ export function DestinationManager({
                 <th className="py-3.5 px-4">Tiket Masuk</th>
                 <th className="py-3.5 px-4">Jam Buka</th>
                 <th className="py-3.5 px-4">Rating</th>
+                <th className="py-3.5 px-4 text-center">Unggulan</th>
                 <th className="py-3.5 px-4 text-right">Aksi</th>
               </tr>
             </thead>
@@ -254,6 +266,23 @@ export function DestinationManager({
                   </td>
                   <td className="py-3.5 px-4 text-stone-500">{item.openingHours}</td>
                   <td className="py-3.5 px-4 font-bold text-amber-600">{item.reviewCount ? `★ ${item.rating}` : "-"}</td>
+                  <td className="py-3.5 px-4 text-center">
+                    {isManager ? (
+                      item.isFeatured ? <Star className="w-4 h-4 text-secondary-500 fill-secondary-500 inline" aria-label="Unggulan" /> : <span className="text-stone-300">-</span>
+                    ) : (
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={item.isFeatured}
+                        aria-label={`Jadikan ${item.name} destinasi unggulan`}
+                        disabled={pending}
+                        onClick={() => toggleFeatured(item)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${item.isFeatured ? "bg-secondary-500" : "bg-stone-300"}`}
+                      >
+                        <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${item.isFeatured ? "translate-x-4.5" : "translate-x-0.5"}`} />
+                      </button>
+                    )}
+                  </td>
                   <td className="py-3.5 px-4 text-right space-x-1">
                     <Link
                       href={`/destinasi/${item.slug}`}
@@ -435,6 +464,23 @@ export function DestinationManager({
                     </div>
                   )}
                 </div>
+              )}
+
+              {!isManager && (
+                <label className="flex items-start gap-3 rounded-xl border border-secondary-300/70 bg-secondary-50/60 p-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isFeatured ?? false}
+                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    className="mt-0.5 w-4 h-4 accent-secondary-500"
+                  />
+                  <span>
+                    <span className="flex items-center gap-1.5 font-semibold text-stone-800">
+                      <Star className="w-3.5 h-3.5 text-secondary-500 fill-secondary-500" /> Jadikan Destinasi Unggulan
+                    </span>
+                    <span className="block text-[11px] text-stone-500 mt-0.5">Tampil di carousel &ldquo;Destinasi Unggulan&rdquo; pada hero beranda (maks. 6, hanya yang berstatus Published).</span>
+                  </span>
+                </label>
               )}
 
               <div>
