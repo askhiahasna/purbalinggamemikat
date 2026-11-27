@@ -145,8 +145,8 @@ export function EntityManager<T extends { id: string }>(props: Props<T>) {
         </div>
       )}
 
-      <div className="bg-white p-4 rounded-2xl border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
-        <div className="relative w-full sm:w-80">
+      <div className="bg-white p-4 rounded-2xl border border-stone-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div className="relative w-full sm:w-80 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
           <input
             type="text"
@@ -161,7 +161,7 @@ export function EntityManager<T extends { id: string }>(props: Props<T>) {
 
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-stone-700">
+          <table className="pm-cardtable w-full text-left text-xs text-stone-700">
             <thead className="bg-stone-50 border-b border-stone-200 text-[11px] font-semibold text-stone-600 uppercase tracking-wider">
               <tr>
                 {columns.map((c) => (
@@ -183,11 +183,11 @@ export function EntityManager<T extends { id: string }>(props: Props<T>) {
               {filtered.map((row) => (
                 <tr key={row.id} className="hover:bg-stone-50 transition-colors">
                   {columns.map((c) => (
-                    <td key={c.header} className="py-3.5 px-4">
+                    <td key={c.header} data-label={c.header} className="py-3.5 px-4">
                       {c.render(row)}
                     </td>
                   ))}
-                  <td className="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                  <td className="pm-actions py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
                     <button
                       type="button"
                       onClick={() => openEdit(row)}
@@ -217,7 +217,7 @@ export function EntityManager<T extends { id: string }>(props: Props<T>) {
 
       {open && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-2xl border border-stone-200">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4 shadow-2xl border border-stone-200">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="font-heading font-bold text-base text-stone-900">
                 {editingId ? `Sunting ${props.entityLabel}` : props.addLabel}

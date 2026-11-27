@@ -71,14 +71,14 @@ function StatCard({
   return (
     <Link href={href} className="block group">
       <Card className={`hover:border-primary-800 transition-all hover:shadow-md ${alert ? "border-amber-300 bg-amber-50/40" : ""}`}>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between pb-3">
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider font-heading">{title}</span>
-            <div className="w-9 h-9 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-primary-50 transition-colors">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-between gap-2 pb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-stone-500 uppercase tracking-wider font-heading leading-tight">{title}</span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-primary-50 transition-colors">
               <Icon className="w-5 h-5 text-primary-800" />
             </div>
           </div>
-          <p className="font-heading text-3xl font-bold text-stone-900 group-hover:text-primary-800 transition-colors">{value}</p>
+          <p className="font-heading text-2xl sm:text-3xl font-bold text-stone-900 group-hover:text-primary-800 transition-colors">{value}</p>
           <div className="flex items-center justify-between text-xs text-stone-500 mt-1">
             <span>{sub}</span>
             <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-secondary-500 transition-opacity" />
@@ -171,7 +171,7 @@ async function StaffView({ role }: { role: AppRole }) {
         </section>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         <StatCard title="Destinasi" value={d.destinations.total} sub={sub(d.destinations)} href="/admin/destinasi" icon={MapPin} />
         <StatCard title="Kuliner" value={d.culinary.total} sub={sub(d.culinary)} href="/admin/kuliner" icon={Utensils} />
         <StatCard title="Event" value={d.events.total} sub={`${d.events.upcoming} akan datang • ${d.events.DRAFT} draf`} href="/admin/event" icon={Calendar} />
@@ -204,7 +204,7 @@ async function StaffView({ role }: { role: AppRole }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b border-stone-100 pb-4">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-stone-100 pb-4">
             <h2 className="font-heading font-semibold text-base text-stone-900">Pesan Layanan Terbaru</h2>
             <Link href="/admin/layanan" className="text-xs font-semibold text-primary-800 hover:underline">
               Buka kotak masuk
@@ -234,7 +234,7 @@ async function StaffView({ role }: { role: AppRole }) {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b border-stone-100 pb-4">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-stone-100 pb-4">
             <h2 className="font-heading font-semibold text-base text-stone-900">Antrean Moderasi Ulasan</h2>
             <Link href="/admin/moderasi" className="text-xs font-semibold text-primary-800 hover:underline">
               Moderasi
@@ -266,7 +266,7 @@ async function StaffView({ role }: { role: AppRole }) {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between border-b border-stone-100 pb-4">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-stone-100 pb-4">
           <h2 className="font-heading font-semibold text-base text-stone-900">Event Mendatang</h2>
           <Link href="/admin/event" className="text-xs font-semibold text-primary-800 hover:underline">
             Kelola event

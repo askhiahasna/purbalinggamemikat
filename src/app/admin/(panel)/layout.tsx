@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { AdminSidebar } from "@/components/admin/sidebar";
-import { AdminTopbar } from "@/components/admin/topbar";
+import { AdminShell } from "@/components/admin/admin-shell";
+import { getSiteSettings } from "@/server/queries/settings";
 import { getSession } from "@/server/auth/dal";
 import { countPendingSubmissions } from "@/server/queries/submissions";
 import { CONTENT_ROLES } from "@/lib/auth/permissions";
@@ -26,13 +26,11 @@ export default async function AdminLayout({
     ? { "/admin/layanan": await countPendingSubmissions() }
     : {};
 
+  const settings = await getSiteSettings();
+
   return (
-    <div className="flex min-h-screen bg-stone-100 text-stone-900 font-body">
-      <AdminSidebar role={user.role} badges={badges} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <AdminTopbar user={user} />
-        <main className="flex-1 p-6 lg:p-8 overflow-y-auto">{children}</main>
-      </div>
-    </div>
+    <AdminShell user={user} badges={badges} siteName={settings.siteName || "Purbalingga Memikat"} logoUrl={settings.logoUrl || undefined}>
+      {children}
+    </AdminShell>
   );
 }

@@ -279,3 +279,63 @@ html {
   text-transform: uppercase;
   letter-spacing: 0.01em;
 }
+
+/* ------------------------------------------------------------------
+ * Tabel admin -> tampilan kartu di layar < md (tiap baris jadi satu kartu).
+ * Pakai: <table class="pm-cardtable">, <td data-label="Kolom"> (kolom pertama = judul kartu, tanpa label),
+ * <td class="pm-actions"> untuk tombol aksi.
+ * ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .pm-cardtable,
+  .pm-cardtable tbody,
+  .pm-cardtable tr,
+  .pm-cardtable td {
+    display: block;
+    width: 100%;
+  }
+  .pm-cardtable thead {
+    display: none;
+  }
+  .pm-cardtable tbody tr {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid rgb(231 229 228);
+  }
+  .pm-cardtable tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .pm-cardtable td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0 !important;
+    text-align: right;
+    min-width: 0;
+  }
+  .pm-cardtable td[data-label]::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgb(120 113 108);
+    text-align: left;
+  }
+  /* kolom pertama = judul kartu */
+  .pm-cardtable td:first-child {
+    display: block;
+    text-align: left;
+    padding-bottom: 0.5rem !important;
+  }
+  .pm-cardtable td.pm-actions {
+    justify-content: flex-end;
+    padding-top: 0.6rem !important;
+    margin-top: 0.4rem;
+    border-top: 1px dashed rgb(231 229 228);
+  }
+  .pm-cardtable td.pm-actions button,
+  .pm-cardtable td.pm-actions a {
+    padding: 0.6rem !important; /* target sentuh lebih besar */
+  }
+}

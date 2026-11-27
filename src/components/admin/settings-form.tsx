@@ -157,13 +157,13 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
           </div>
 
           {/* Add New Item */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-2">
             <input
               type="text"
               value={newMarqueeText}
               onChange={(e) => setNewMarqueeText(e.target.value)}
               placeholder="Ketik teks baru (misal: 'SELAMAT DATANG DI BUMI PERWIRA!')..."
-              className="flex-1 px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-primary-800"
+              className="flex-1 min-w-0 px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:border-primary-800"
             />
             <Button
               type="button"

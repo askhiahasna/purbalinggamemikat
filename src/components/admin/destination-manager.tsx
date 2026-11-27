@@ -225,7 +225,7 @@ export function DestinationManager({
       {/* Table Data */}
       <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-stone-700">
+          <table className="pm-cardtable w-full text-left text-xs text-stone-700">
             <thead className="bg-stone-50 border-b border-stone-200 text-[11px] font-semibold text-stone-600 uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-4">Nama Destinasi</th>
@@ -250,23 +250,23 @@ export function DestinationManager({
                     </p>
                     <p className="text-[11px] text-stone-400 line-clamp-1">{item.summary}</p>
                   </td>
-                  <td className="py-3.5 px-4">
+                  <td data-label="Kategori" className="py-3.5 px-4">
                     <Badge variant="primary" className="text-[10px]">
                       {item.categoryLabel}
                     </Badge>
                   </td>
-                  <td className="py-3.5 px-4">
+                  <td data-label="Kecamatan" className="py-3.5 px-4">
                     <span className="flex items-center gap-1 text-stone-600">
                       <MapPin className="w-3.5 h-3.5 text-secondary-500" />
                       Kec. {item.district}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 font-bold text-primary-900">
+                  <td data-label="Tiket Masuk" className="py-3.5 px-4 font-bold text-primary-900">
                     {formatRupiah(item.ticketWeekday)}
                   </td>
-                  <td className="py-3.5 px-4 text-stone-500">{item.openingHours}</td>
-                  <td className="py-3.5 px-4 font-bold text-amber-600">{item.reviewCount ? `★ ${item.rating}` : "-"}</td>
-                  <td className="py-3.5 px-4 text-center">
+                  <td data-label="Jam Buka" className="py-3.5 px-4 text-stone-500">{item.openingHours}</td>
+                  <td data-label="Rating" className="py-3.5 px-4 font-bold text-amber-600">{item.reviewCount ? `★ ${item.rating}` : "-"}</td>
+                  <td data-label="Unggulan" className="py-3.5 px-4 text-center">
                     {isManager ? (
                       item.isFeatured ? <Star className="w-4 h-4 text-secondary-500 fill-secondary-500 inline" aria-label="Unggulan" /> : <span className="text-stone-300">-</span>
                     ) : (
@@ -283,7 +283,7 @@ export function DestinationManager({
                       </button>
                     )}
                   </td>
-                  <td className="py-3.5 px-4 text-right space-x-1">
+                  <td className="pm-actions py-3.5 px-4 text-right space-x-1">
                     <Link
                       href={`/destinasi/${item.slug}`}
                       target="_blank"
@@ -338,7 +338,7 @@ export function DestinationManager({
       {/* Modal Tambah Destinasi */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-stone-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 space-y-4 shadow-2xl border border-stone-200">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="font-heading font-bold text-base text-stone-900">
                 {editingId ? "Sunting Destinasi Wisata" : "Tambah Destinasi Wisata Baru"}

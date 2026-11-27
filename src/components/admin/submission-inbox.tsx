@@ -180,7 +180,7 @@ export function SubmissionInbox({ rows, survey, canDelete }: { rows: Row[]; surv
               }}
             />
           ) : (
-            <div className="h-full min-h-48 flex items-center justify-center rounded-2xl border border-dashed border-stone-300 text-xs text-stone-400">
+            <div className="hidden lg:flex h-full min-h-48 items-center justify-center rounded-2xl border border-dashed border-stone-300 text-xs text-stone-400">
               Pilih pesan di sebelah kiri untuk melihat detail.
             </div>
           )}
