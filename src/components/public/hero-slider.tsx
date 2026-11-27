@@ -197,7 +197,7 @@ export function HeroSlider({ settings, destinations }: { settings: SiteSettings;
                     return (
                       <li key={item.id} className="shrink-0 basis-full sm:basis-1/2 px-2" aria-hidden={!visible} inert={!visible}>
                         <div className="group relative isolate rounded-2xl overflow-hidden border border-white/25 p-6 h-72 sm:h-80 flex flex-col justify-end shadow-xl transition-transform duration-300 hover:-translate-y-1">
-                          <div className={`absolute inset-0 bg-gradient-to-t ${item.coverGradient}`} />
+                          <div className={`absolute inset-0 -z-20 bg-gradient-to-t ${item.coverGradient}`} />
                           <CoverImage src={item.coverUrl} alt={item.name} sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 100vw" />
 
                           <div className="absolute top-4 left-4 z-10">

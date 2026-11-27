@@ -43,7 +43,7 @@ export function StatsSection({
                 className="group relative isolate rounded-2xl overflow-hidden p-6 sm:p-8 flex flex-col justify-between text-white shadow-lg border border-white/10 transition-all duration-300 hover:scale-[1.03]"
               >
                 {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${style.gradient}`} />
+                <div className={`absolute inset-0 -z-20 bg-gradient-to-br ${style.gradient}`} />
                 <CoverImage src={images[idx]} alt="" sizes="(min-width: 1024px) 25vw, 50vw" />
                 {images[idx] && <div aria-hidden className="absolute inset-0 -z-10 bg-primary-950/55" />}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(194,136,53,0.15),transparent_60%)]" />
